@@ -96,28 +96,19 @@
                                         {l s='Ver' mod='escandallo'}
                                     </button>
 
-                                    {if $producto.puede_comprar}
-                                        <form action="{$urls.pages.cart}" method="post" class="escandallo-add-to-cart-form" style="display: inline-block;" data-product-id="{$producto.id_product}" data-max-stock="{$producto.quantity}">
-                                            <input type="hidden" name="token" value="{$static_token}">
-                                            <input type="hidden" name="id_product" value="{$producto.id_product}">
-                                            <input type="hidden" name="qty" value="1">
-                                            <input type="hidden" name="add" value="1">
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-primary escandallo-btn-add-cart"
-                                                    data-button-action="add-to-cart">
-                                                <i class="fa fa-shopping-cart"></i>
-                                                {l s='Añadir' mod='escandallo'}
-                                            </button>
-                                        </form>
-                                    {else}
-                                        <button type="button"
-                                                class="btn btn-sm btn-secondary"
-                                                disabled
-                                                style="opacity: 0.5; cursor: not-allowed;">
-                                            <i class="fa fa-ban"></i>
-                                            {l s='Sin stock' mod='escandallo'}
+                                    <form action="{$cart_url}" method="post" class="escandallo-add-to-cart-form" style="display: inline-block;">
+                                        <input type="hidden" name="id_product" value="{$producto.id_product}">
+                                        <input type="hidden" name="qty" value="1">
+                                        <input type="hidden" name="add" value="1">
+                                        <input type="hidden" name="action" value="update">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-primary escandallo-btn-add-cart"
+                                                data-button-action="add-to-cart"
+                                                {if !$producto.puede_comprar}disabled style="opacity: 0.5; cursor: not-allowed;"{/if}>
+                                            <i class="fa fa-shopping-cart"></i>
+                                            {l s='Añadir' mod='escandallo'}
                                         </button>
-                                    {/if}
+                                    </form>
                                 </td>
                             </tr>
                         {/foreach}

@@ -43,21 +43,13 @@ function showToast(title, message, type) {
 document.addEventListener('DOMContentLoaded', function() {
 
     // ===================================
-    // AÑADIR AL CARRITO - USANDO SISTEMA NATIVO DE PRESTASHOP
-    // El formulario se envía de forma normal, PrestaShop maneja todo
-    // Solo añadimos efecto visual al botón al hacer clic
+    // AÑADIR AL CARRITO - USANDO SISTEMA 100% NATIVO DE PRESTASHOP
+    // Los formularios se envían normalmente sin JavaScript
+    // PrestaShop maneja todo: añadir, modal, contador, stock
     // ===================================
 
-    const addToCartButtons = document.querySelectorAll('.escandallo-btn-add-cart');
+    // No interceptamos nada, dejamos que PrestaShop haga su magia
 
-    addToCartButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            // Deshabilitar botón y mostrar spinner mientras se procesa
-            this.disabled = true;
-            this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-        });
-    });
-    
     // ===================================
     // BÚSQUEDA CON AUTOCOMPLETADO (OPCIONAL)
     // ===================================

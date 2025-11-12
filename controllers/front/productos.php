@@ -76,7 +76,7 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
             'index_url' => $this->context->link->getModuleLink('escandallo', 'principal'),
             'partes_url' => $this->context->link->getModuleLink('escandallo', 'partes', ['id_principal' => $parte['id_principal']]),
             'search_url' => $this->context->link->getModuleLink('escandallo', 'buscar'),
-            'cart_url' => $this->context->link->getPageLink('cart', true, null, ['action' => 'add'])
+            'cart_url' => $this->context->link->getPageLink('cart', true)
         ]);
 
         $this->setTemplate('module:escandallo/views/templates/front/productos.tpl');
