@@ -59,16 +59,33 @@
 
                 <div class="alert alert-warning">
                     <h4><i class="icon-wrench"></i> {l s='¿Las URLs no funcionan?' mod='escandallo'}</h4>
-                    <p>{l s='Si los enlaces del módulo te llevan al inicio de la tienda, haz clic en el botón de abajo para regenerar las rutas:' mod='escandallo'}</p>
-                    <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" style="margin-top: 15px;">
-                        <button type="submit" name="regenerateRoutes" class="btn btn-warning">
-                            <i class="icon-refresh"></i>
-                            {l s='Regenerar Rutas del Módulo' mod='escandallo'}
-                        </button>
-                    </form>
-                    <p class="text-muted" style="margin-top: 10px;">
-                        <small><strong>{l s='Importante:' mod='escandallo'}</strong> {l s='Después de regenerar las rutas, ve a Parámetros Avanzados > Rendimiento y haz clic en "Limpiar caché"' mod='escandallo'}</small>
-                    </p>
+                    <p><strong>{l s='Si los enlaces del módulo te llevan al inicio de la tienda:' mod='escandallo'}</strong></p>
+
+                    <ol style="margin: 15px 0;">
+                        <li><strong>{l s='Haz clic en este botón:' mod='escandallo'}</strong>
+                            <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" style="display: inline-block; margin-left: 10px;">
+                                <button type="submit" name="regenerateRoutes" class="btn btn-warning btn-sm">
+                                    <i class="icon-refresh"></i> {l s='Regenerar Rutas' mod='escandallo'}
+                                </button>
+                            </form>
+                        </li>
+                        <li>{l s='Ve a: Parámetros Avanzados > Rendimiento > Limpiar caché' mod='escandallo'}</li>
+                        <li>{l s='Ve a: Tráfico y SEO > SEO y URLs' mod='escandallo'}
+                            <ul>
+                                <li>{l s='Activa "URLs amigables" = SÍ' mod='escandallo'}</li>
+                                <li>{l s='Activa "Reescritura de URL" = SÍ' mod='escandallo'}</li>
+                            </ul>
+                        </li>
+                        <li><strong>{l s='Si aún no funciona, reinstala el módulo' mod='escandallo'}</strong> {l s='(no perderás los datos)' mod='escandallo'}</li>
+                    </ol>
+
+                    <div class="alert alert-info" style="margin-top: 15px;">
+                        <strong><i class="icon-lightbulb-o"></i> {l s='URLs alternativas (siempre funcionan):' mod='escandallo'}</strong><br>
+                        <small>
+                            • <code>{$shop_url}index.php?fc=module&module=escandallo&controller=index</code><br>
+                            • <code>{$shop_url}index.php?fc=module&module=escandallo&controller=partes&id_principal=1</code>
+                        </small>
+                    </div>
                 </div>
             </div>
 

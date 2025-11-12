@@ -202,7 +202,8 @@ class Escandallo extends Module
         // Regenerar rutas si se solicita
         if (Tools::isSubmit('regenerateRoutes')) {
             $this->clearRoutingCache();
-            $output .= $this->displayConfirmation($this->l('Rutas regeneradas correctamente. Por favor, limpia la caché de PrestaShop desde Parámetros Avanzados > Rendimiento.'));
+            $output .= $this->displayConfirmation($this->l('Caché limpiada correctamente.'))
+                . $this->displayWarning($this->l('IMPORTANTE: Ahora debes ir a Parámetros Avanzados > Rendimiento y hacer clic en "Limpiar caché". También verifica que las URLs amigables estén activadas en Tráfico y SEO > SEO y URLs.'));
         }
 
         // Procesar formularios
@@ -729,7 +730,17 @@ private function renderConfigForm()
     private function clearRoutingCache()
     {
         try {
-            // Limpiar caché de Symfony/PrestaShop
+            // Usar métodos nativos de PrestaShop para limpiar caché
+            if (class_exists('Tools')) {
+                // Limpiar caché de Smarty
+                Tools::clearSmartyCache();
+                Tools::clearXMLCache();
+
+                // Limpiar caché compilada
+                Tools::clearCache();
+            }
+
+            // Limpiar caché de class_index
             if (file_exists(_PS_CACHE_DIR_ . 'class_index.php')) {
                 @unlink(_PS_CACHE_DIR_ . 'class_index.php');
             }
@@ -748,10 +759,11 @@ private function renderConfigForm()
                 }
             }
 
-            // Limpiar caché de smarty
+            // Limpiar directorio de caché de Smarty
             $smartyCacheDirs = [
-                _PS_ROOT_DIR_ . '/var/cache/dev/smarty',
-                _PS_ROOT_DIR_ . '/var/cache/prod/smarty',
+                _PS_ROOT_DIR_ . '/var/cache/dev/smarty/compile',
+                _PS_ROOT_DIR_ . '/var/cache/prod/smarty/compile',
+                _PS_ROOT_DIR_ . '/cache/smarty/compile',
             ];
 
             foreach ($smartyCacheDirs as $dir) {
@@ -760,10 +772,11 @@ private function renderConfigForm()
                 }
             }
 
-            // Forzar reconstrucción de rutas
-            if (class_exists('Dispatcher')) {
-                Dispatcher::getInstance()->clearCache();
+            // Forzar regeneración del Dispatcher
+            if (file_exists(_PS_CACHE_DIR_ . 'Dispatcher.php')) {
+                @unlink(_PS_CACHE_DIR_ . 'Dispatcher.php');
             }
+
         } catch (Exception $e) {
             // Ignorar errores de limpieza de caché
         }
