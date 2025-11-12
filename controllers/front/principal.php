@@ -3,7 +3,7 @@
  * Controlador para mostrar los productos principales del escandallo
  */
 
-class EscandalloIndexModuleFrontController extends ModuleFrontController
+class EscandalloPrincipalModuleFrontController extends ModuleFrontController
 {
     public function init()
     {
@@ -33,7 +33,7 @@ class EscandalloIndexModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign([
             'principales' => $principales,
             'module_dir' => $escandallo->getPathUri(),
-            'base_url' => $this->context->link->getModuleLink('escandallo', 'index'),
+            'base_url' => $this->context->link->getModuleLink('escandallo', 'principal'),
             'search_url' => $this->context->link->getModuleLink('escandallo', 'buscar')
         ]);
 
@@ -46,7 +46,7 @@ class EscandalloIndexModuleFrontController extends ModuleFrontController
 
         $breadcrumb['links'][] = [
             'title' => $this->l('Escandallo'),
-            'url' => $this->context->link->getModuleLink('escandallo', 'index')
+            'url' => $this->context->link->getModuleLink('escandallo', 'principal')
         ];
 
         return $breadcrumb;

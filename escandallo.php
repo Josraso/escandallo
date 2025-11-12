@@ -179,15 +179,15 @@ class Escandallo extends Module
                     'controller' => 'productos'
                 ]
             ],
-            // Ruta principal VA AL FINAL para que no capture las otras
-            'module-escandallo-index' => [
-                'controller' => 'index',
-                'rule' => 'escandallo-piezas',
+            // Ruta principal - cambiado de 'index' a 'principal' para evitar conflictos
+            'module-escandallo-principal' => [
+                'controller' => 'principal',
+                'rule' => 'escandallo',
                 'keywords' => [],
                 'params' => [
                     'fc' => 'module',
                     'module' => 'escandallo',
-                    'controller' => 'index'
+                    'controller' => 'principal'
                 ]
             ]
         ];
