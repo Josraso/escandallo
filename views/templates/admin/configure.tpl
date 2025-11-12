@@ -46,45 +46,36 @@
             <div class="tab-pane active" id="tab-config">
                 <h3>{l s='Configuración General' mod='escandallo'}</h3>
 
-                <div class="alert alert-info">
-                    <h4><i class="icon-info"></i> {l s='Acceso al Escandallo' mod='escandallo'}</h4>
+                <div class="alert alert-success">
+                    <h4><i class="icon-link"></i> {l s='URL del Módulo' mod='escandallo'}</h4>
                     <p>
-                        {l s='URL del escandallo (Frontend):' mod='escandallo'}
-                        <strong><a href="{$shop_url}escandallo" target="_blank">{$shop_url}escandallo</a></strong>
-                    </p>
-                    <p class="text-muted">
-                        <small>{l s='Esta es la URL pública donde los clientes verán el escandallo' mod='escandallo'}</small>
+                        {l s='Esta URL funciona SIEMPRE:' mod='escandallo'}<br>
+                        <strong><a href="{$shop_url}index.php?fc=module&module=escandallo&controller=index" target="_blank" style="font-size: 16px;">
+                            {$shop_url}index.php?fc=module&module=escandallo&controller=index
+                        </a></strong>
                     </p>
                 </div>
 
                 <div class="alert alert-warning">
-                    <h4><i class="icon-wrench"></i> {l s='¿Las URLs no funcionan?' mod='escandallo'}</h4>
-                    <p><strong>{l s='Si los enlaces del módulo te llevan al inicio de la tienda:' mod='escandallo'}</strong></p>
+                    <h4><i class="icon-wrench"></i> {l s='¿No funciona /escandallo?' mod='escandallo'}</h4>
+                    <p>{l s='Para activar la URL bonita /escandallo, sigue estos pasos:' mod='escandallo'}</p>
 
-                    <ol style="margin: 15px 0;">
-                        <li><strong>{l s='Haz clic en este botón:' mod='escandallo'}</strong>
+                    <ol style="margin: 15px 0; font-size: 14px;">
+                        <li style="margin-bottom: 10px;">
+                            <strong>{l s='1. Regenerar Rutas' mod='escandallo'}</strong>
                             <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" style="display: inline-block; margin-left: 10px;">
-                                <button type="submit" name="regenerateRoutes" class="btn btn-warning btn-sm">
-                                    <i class="icon-refresh"></i> {l s='Regenerar Rutas' mod='escandallo'}
+                                <button type="submit" name="regenerateRoutes" class="btn btn-warning">
+                                    <i class="icon-refresh"></i> {l s='Regenerar' mod='escandallo'}
                                 </button>
                             </form>
                         </li>
-                        <li>{l s='Ve a: Parámetros Avanzados > Rendimiento > Limpiar caché' mod='escandallo'}</li>
-                        <li>{l s='Ve a: Tráfico y SEO > SEO y URLs' mod='escandallo'}
-                            <ul>
-                                <li>{l s='Activa "URLs amigables" = SÍ' mod='escandallo'}</li>
-                                <li>{l s='Activa "Reescritura de URL" = SÍ' mod='escandallo'}</li>
-                            </ul>
-                        </li>
-                        <li><strong>{l s='Si aún no funciona, reinstala el módulo' mod='escandallo'}</strong> {l s='(no perderás los datos)' mod='escandallo'}</li>
+                        <li style="margin-bottom: 10px;"><strong>{l s='2. Limpiar caché:' mod='escandallo'}</strong> Parámetros Avanzados > Rendimiento > Limpiar caché</li>
+                        <li style="margin-bottom: 10px;"><strong>{l s='3. Verificar SEO:' mod='escandallo'}</strong> Tráfico y SEO > SEO y URLs > Activar URLs amigables y Reescritura</li>
+                        <li><strong>{l s='4. Si no funciona:' mod='escandallo'}</strong> Reinstalar módulo (no pierde datos)</li>
                     </ol>
 
                     <div class="alert alert-info" style="margin-top: 15px;">
-                        <strong><i class="icon-lightbulb-o"></i> {l s='URLs alternativas (siempre funcionan):' mod='escandallo'}</strong><br>
-                        <small>
-                            • <code>{$shop_url}index.php?fc=module&module=escandallo&controller=index</code><br>
-                            • <code>{$shop_url}index.php?fc=module&module=escandallo&controller=partes&id_principal=1</code>
-                        </small>
+                        <i class="icon-info-circle"></i> <strong>{l s='Nota:' mod='escandallo'}</strong> {l s='La URL alternativa de arriba funciona aunque /escandallo no funcione.' mod='escandallo'}
                     </div>
                 </div>
             </div>

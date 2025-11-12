@@ -142,9 +142,21 @@ class Escandallo extends Module
     public function hookModuleRoutes($params)
     {
         return [
+            // Ruta principal - debe ir primera para evitar conflictos
             'module-escandallo-index' => [
                 'controller' => 'index',
                 'rule' => 'escandallo',
+                'keywords' => [],
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'escandallo',
+                    'controller' => 'index'
+                ]
+            ],
+            // Ruta alternativa con /index explícito
+            'module-escandallo-index-alt' => [
+                'controller' => 'index',
+                'rule' => 'escandallo/index',
                 'keywords' => [],
                 'params' => [
                     'fc' => 'module',
