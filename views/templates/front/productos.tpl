@@ -85,21 +85,24 @@
                                     <strong>{$producto.precio_formateado}</strong>
                                 </td>
                                 <td class="text-center escandallo-producto-actions">
-                                    <a href="{$producto.product_url}" 
-                                       class="btn btn-sm btn-outline-primary escandallo-btn-ver"
-                                       target="_blank">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary escandallo-btn-ver-imagen"
+                                            data-imagen="{$producto.imagen_url}"
+                                            data-nombre="{$producto.name|escape:'html':'UTF-8'}"
+                                            data-referencia="{$producto.reference|escape:'html':'UTF-8'}">
+                                        <i class="material-icons" style="font-size: 14px; vertical-align: middle;">visibility</i>
                                         {l s='Ver' mod='escandallo'}
-                                    </a>
+                                    </button>
                                     {if $producto.puede_comprar}
-                                        <button type="button" 
+                                        <button type="button"
                                                 class="btn btn-sm btn-primary escandallo-btn-add-cart"
                                                 data-id-product="{$producto.id_product}"
                                                 data-cart-url="{$cart_url}">
                                             {l s='Agregar al Carrito' mod='escandallo'}
                                         </button>
                                     {else}
-                                        <button type="button" 
-                                                class="btn btn-sm btn-secondary" 
+                                        <button type="button"
+                                                class="btn btn-sm btn-secondary"
                                                 disabled>
                                             {l s='No disponible' mod='escandallo'}
                                         </button>

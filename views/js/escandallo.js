@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             const idProduct = this.getAttribute('data-id-product');
-            let cartUrl = this.getAttribute('data-cart-url');
+            const cartUrl = this.getAttribute('data-cart-url');
             const originalText = this.innerHTML;
             const self = this;
 
@@ -36,19 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Añadir ajax=1 para obtener respuesta JSON
-            if (cartUrl.indexOf('?') === -1) {
-                cartUrl += '?ajax=1&action=update';
-            } else {
-                cartUrl += '&ajax=1&action=update';
-            }
-
             // Crear FormData para enviar
             const formData = new FormData();
             formData.append('id_product', idProduct);
             formData.append('qty', '1');
             formData.append('add', '1');
             formData.append('action', 'update');
+            formData.append('ajax', '1');
             if (staticToken) {
                 formData.append('token', staticToken);
             }
@@ -62,13 +56,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
                 // Verificar si la respuesta es JSON
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
                     return response.json();
                 } else {
-                    // Si no es JSON, consideramos que se añadió correctamente
-                    return { success: true };
+                    return response.text().then(text => {
+                        console.log('Respuesta del servidor:', text);
+                        return { success: true };
+                    });
                 }
             })
             .then(data => {
@@ -77,18 +76,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 self.classList.remove('btn-primary');
                 self.classList.add('btn-success');
 
-                // Actualizar contador del carrito si existe
+                // Disparar eventos de PrestaShop para abrir el modal
                 if (typeof prestashop !== 'undefined') {
+                    // Disparar evento updateCart
                     if (prestashop.emit) {
                         prestashop.emit('updateCart', {
-                            reason: data
+                            reason: {
+                                idProduct: idProduct,
+                                idProductAttribute: 0,
+                                linkAction: 'add-to-cart',
+                                cart: data
+                            }
                         });
-                    } else {
-                        // Recargar el bloque del carrito manualmente
-                        prestashop.cart = prestashop.cart || {};
-                        prestashop.cart.products_count = (prestashop.cart.products_count || 0) + 1;
                     }
+
+                    // Disparar evento personalizado para el modal
+                    const cartEvent = new CustomEvent('updateCart', {
+                        detail: data
+                    });
+                    document.body.dispatchEvent(cartEvent);
                 }
+
+                // También intentar abrir el modal directamente si existe
+                setTimeout(() => {
+                    const blockcartModal = document.querySelector('#blockcart-modal');
+                    if (blockcartModal) {
+                        // Si existe el modal de PrestaShop 1.7, abrirlo
+                        if (typeof $ !== 'undefined' && $.fn.modal) {
+                            $(blockcartModal).modal('show');
+                        }
+                    }
+                }, 100);
 
                 // Restaurar botón después de 2 segundos
                 setTimeout(() => {
@@ -201,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===================================
     // SMOOTH SCROLL PARA NAVEGACIÓN
     // ===================================
-    
+
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -214,5 +232,159 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
+    // ===================================
+    // MODAL DE IMAGEN DEL PRODUCTO
+    // ===================================
+
+    const btnVerImagen = document.querySelectorAll('.escandallo-btn-ver-imagen');
+
+    btnVerImagen.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const imagenUrl = this.getAttribute('data-imagen');
+            const nombre = this.getAttribute('data-nombre');
+            const referencia = this.getAttribute('data-referencia');
+
+            // Crear overlay para el modal
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                cursor: pointer;
+                animation: fadeIn 0.3s ease;
+            `;
+
+            // Crear contenedor del contenido
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                cursor: default;
+            `;
+
+            // Crear título del producto
+            const titulo = document.createElement('div');
+            titulo.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 30px;
+                border-radius: 10px 10px 0 0;
+                text-align: center;
+                width: 100%;
+                max-width: 700px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            `;
+            titulo.innerHTML = `
+                <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${nombre}</div>
+                <div style="font-size: 14px; opacity: 0.9;">Ref: ${referencia}</div>
+            `;
+
+            // Crear imagen
+            const imagen = document.createElement('img');
+            imagen.src = imagenUrl;
+            imagen.alt = nombre;
+            imagen.style.cssText = `
+                max-width: 700px;
+                max-height: 500px;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                background: white;
+                padding: 20px;
+                border-radius: 0 0 10px 10px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+                cursor: zoom-in;
+            `;
+
+            // Botón cerrar
+            const btnCerrar = document.createElement('button');
+            btnCerrar.innerHTML = '<i class="material-icons">close</i>';
+            btnCerrar.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                border-radius: 50%;
+                width: 45px;
+                height: 45px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+                z-index: 10000;
+            `;
+
+            btnCerrar.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(255, 255, 255, 1)';
+                this.style.transform = 'scale(1.1)';
+            });
+
+            btnCerrar.addEventListener('mouseleave', function() {
+                this.style.background = 'rgba(255, 255, 255, 0.9)';
+                this.style.transform = 'scale(1)';
+            });
+
+            // Ensamblar modal
+            modalContent.appendChild(titulo);
+            modalContent.appendChild(imagen);
+            overlay.appendChild(btnCerrar);
+            overlay.appendChild(modalContent);
+
+            // Prevenir que el clic en el contenido cierre el modal
+            modalContent.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Cerrar al hacer clic en el overlay
+            overlay.addEventListener('click', function() {
+                document.body.removeChild(overlay);
+            });
+
+            // Cerrar al hacer clic en el botón
+            btnCerrar.addEventListener('click', function() {
+                document.body.removeChild(overlay);
+            });
+
+            // Cerrar con ESC
+            const handleEsc = function(e) {
+                if (e.key === 'Escape' && document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+
+            // Añadir al body
+            document.body.appendChild(overlay);
+
+            // Añadir animación CSS si no existe
+            if (!document.getElementById('escandallo-modal-styles')) {
+                const style = document.createElement('style');
+                style.id = 'escandallo-modal-styles';
+                style.innerHTML = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        });
+    });
+
 });

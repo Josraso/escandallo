@@ -50,10 +50,10 @@
                     <h4><i class="icon-info"></i> {l s='Acceso al Escandallo' mod='escandallo'}</h4>
                     <p>
                         {l s='URL del escandallo (Frontend):' mod='escandallo'}
-                        <strong><a href="{$shop_url}escandallo" target="_blank">{$shop_url}escandallo</a></strong>
+                        <strong><a href="{$shop_url}diagramas-piezas" target="_blank">{$shop_url}diagramas-piezas</a></strong>
                     </p>
                     <p class="text-muted">
-                        <small>{l s='Esta es la URL pública donde los clientes verán el escandallo' mod='escandallo'}</small>
+                        <small>{l s='Esta es la URL pública donde los clientes verán el escandallo de piezas' mod='escandallo'}</small>
                     </p>
                 </div>
 
