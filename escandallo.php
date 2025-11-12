@@ -1,6 +1,6 @@
 <?php
 /**
- * Módulo Escandallo para PrestaShop 1.7, 8 y 9
+ * Mï¿½dulo Escandallo para PrestaShop 1.7, 8 y 9
  *
  * @author    Tu Nombre
  * @copyright Copyright (c) 2025
@@ -29,8 +29,8 @@ class Escandallo extends Module
         parent::__construct();
 
         $this->displayName = $this->l('Escandallo');
-        $this->description = $this->l('Módulo de escandallo para gestión de productos principales, partes y productos finales');
-        $this->confirmUninstall = $this->l('¿Estás seguro de que deseas desinstalar este módulo?');
+        $this->description = $this->l('Mï¿½dulo de escandallo para gestiï¿½n de productos principales, partes y productos finales');
+        $this->confirmUninstall = $this->l('ï¿½Estï¿½s seguro de que deseas desinstalar este mï¿½dulo?');
     }
 
     public function install()
@@ -197,10 +197,6 @@ class Escandallo extends Module
         $output = '';
 
         // Procesar formularios
-        if (Tools::isSubmit('submitEscandalloConfig')) {
-            $output .= $this->processConfiguration();
-        }
-
         if (Tools::isSubmit('submitAddPrincipal')) {
             $output .= $this->processAddPrincipal();
         }
@@ -211,6 +207,18 @@ class Escandallo extends Module
 
         if (Tools::isSubmit('submitAddProductoParte')) {
             $output .= $this->processAddProductoParte();
+        }
+
+        if (Tools::isSubmit('submitEditPrincipal')) {
+            $output .= $this->processEditPrincipal();
+        }
+
+        if (Tools::isSubmit('submitEditParte')) {
+            $output .= $this->processEditParte();
+        }
+
+        if (Tools::isSubmit('submitEditProductoParte')) {
+            $output .= $this->processEditProductoParte();
         }
 
         if (Tools::isSubmit('submitImportCSV')) {
@@ -233,12 +241,6 @@ class Escandallo extends Module
         return $output . $this->renderConfigForm();
     }
 
-    private function processConfiguration()
-    {
-        Configuration::updateValue('ESCANDALLO_ITEMS_PER_PAGE', Tools::getValue('items_per_page'));
-        return $this->displayConfirmation($this->l('Configuración actualizada correctamente'));
-    }
-
     private function processAddPrincipal()
     {
         $nombre = Tools::getValue('nombre_principal');
@@ -253,10 +255,10 @@ class Escandallo extends Module
                 VALUES ("' . pSQL($nombre) . '", "' . pSQL($imagen) . '", NOW(), NOW())';
 
         if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Principal añadido correctamente'));
+            return $this->displayConfirmation($this->l('Principal aï¿½adido correctamente'));
         }
 
-        return $this->displayError($this->l('Error al añadir el principal'));
+        return $this->displayError($this->l('Error al aï¿½adir el principal'));
     }
 
     private function processAddParte()
@@ -274,10 +276,10 @@ class Escandallo extends Module
                 VALUES (' . $id_principal . ', "' . pSQL($nombre) . '", "' . pSQL($imagen) . '", NOW(), NOW())';
 
         if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Parte añadida correctamente'));
+            return $this->displayConfirmation($this->l('Parte aï¿½adida correctamente'));
         }
 
-        return $this->displayError($this->l('Error al añadir la parte'));
+        return $this->displayError($this->l('Error al aï¿½adir la parte'));
     }
 
     private function processAddProductoParte()
@@ -309,6 +311,100 @@ class Escandallo extends Module
         }
 
         return $this->displayError($this->l('Error al asociar el producto'));
+    }
+
+    private function processEditPrincipal()
+    {
+        $id_principal = (int)Tools::getValue('id_principal_edit');
+        $nombre = Tools::getValue('nombre_principal_edit');
+        $imagen_actual = Tools::getValue('imagen_actual_principal');
+
+        if (empty($nombre) || $id_principal <= 0) {
+            return $this->displayError($this->l('Todos los campos son obligatorios'));
+        }
+
+        // Intentar subir nueva imagen si se proporcionÃ³
+        $imagen = $this->uploadImage('imagen_principal_edit', 'principales');
+        if ($imagen === null) {
+            $imagen = $imagen_actual; // Mantener imagen actual si no se subiÃ³ nueva
+        }
+
+        $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_principal`
+                SET `nombre` = "' . pSQL($nombre) . '",
+                    `imagen` = "' . pSQL($imagen) . '",
+                    `date_upd` = NOW()
+                WHERE `id_principal` = ' . $id_principal;
+
+        if (Db::getInstance()->execute($sql)) {
+            return $this->displayConfirmation($this->l('Principal actualizado correctamente'));
+        }
+
+        return $this->displayError($this->l('Error al actualizar el principal'));
+    }
+
+    private function processEditParte()
+    {
+        $id_parte = (int)Tools::getValue('id_parte_edit');
+        $id_principal = (int)Tools::getValue('id_principal_parte_edit');
+        $nombre = Tools::getValue('nombre_parte_edit');
+        $imagen_actual = Tools::getValue('imagen_actual_parte');
+
+        if (empty($nombre) || $id_parte <= 0 || $id_principal <= 0) {
+            return $this->displayError($this->l('Todos los campos son obligatorios'));
+        }
+
+        // Intentar subir nueva imagen si se proporcionÃ³
+        $imagen = $this->uploadImage('imagen_parte_edit', 'partes');
+        if ($imagen === null) {
+            $imagen = $imagen_actual; // Mantener imagen actual si no se subiÃ³ nueva
+        }
+
+        $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_parte`
+                SET `id_principal` = ' . $id_principal . ',
+                    `nombre` = "' . pSQL($nombre) . '",
+                    `imagen` = "' . pSQL($imagen) . '",
+                    `date_upd` = NOW()
+                WHERE `id_parte` = ' . $id_parte;
+
+        if (Db::getInstance()->execute($sql)) {
+            return $this->displayConfirmation($this->l('Parte actualizada correctamente'));
+        }
+
+        return $this->displayError($this->l('Error al actualizar la parte'));
+    }
+
+    private function processEditProductoParte()
+    {
+        $id_escandallo_producto = (int)Tools::getValue('id_escandallo_producto_edit');
+        $id_parte = (int)Tools::getValue('id_parte_producto_edit');
+        $id_product = (int)Tools::getValue('id_product_edit');
+        $numero_imagen = (int)Tools::getValue('numero_imagen_edit');
+
+        if ($id_escandallo_producto <= 0 || $id_parte <= 0 || $id_product <= 0 || $numero_imagen <= 0) {
+            return $this->displayError($this->l('Todos los campos son obligatorios'));
+        }
+
+        // Verificar que el producto existe
+        $product = new Product($id_product, false, $this->context->language->id);
+        if (!Validate::isLoadedObject($product)) {
+            return $this->displayError($this->l('El producto no existe'));
+        }
+
+        // Marcar producto como oculto
+        $product->visibility = 'none';
+        $product->save();
+
+        $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_producto_parte`
+                SET `id_parte` = ' . $id_parte . ',
+                    `id_product` = ' . $id_product . ',
+                    `numero_imagen` = ' . $numero_imagen . '
+                WHERE `id_escandallo_producto` = ' . $id_escandallo_producto;
+
+        if (Db::getInstance()->execute($sql)) {
+            return $this->displayConfirmation($this->l('Producto asociado actualizado correctamente'));
+        }
+
+        return $this->displayError($this->l('Error al actualizar el producto asociado'));
     }
 
     private function processImportCSV()
@@ -398,7 +494,7 @@ class Escandallo extends Module
                     $product->id_category_default = $id_category;
                     
                     if ($product->add()) {
-                        // Añadir a categoría
+                        // Aï¿½adir a categorï¿½a
                         $product->addToCategories([$id_category]);
                         
                         // Actualizar stock
@@ -435,7 +531,7 @@ class Escandallo extends Module
         fclose($handle);
 
         return $this->displayConfirmation(
-            sprintf($this->l('Importación completada: %d registros importados, %d errores'), $imported, $errors)
+            sprintf($this->l('Importaciï¿½n completada: %d registros importados, %d errores'), $imported, $errors)
         );
     }
 
@@ -525,7 +621,6 @@ private function renderConfigForm()
             'principales' => $principales,
             'partes' => $partes,
             'productos_partes' => $productos_partes,
-            'items_per_page' => Configuration::get('ESCANDALLO_ITEMS_PER_PAGE', 12),
             'shop_url' => $shop_url
         ]);
 

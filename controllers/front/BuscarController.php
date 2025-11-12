@@ -3,7 +3,7 @@
  * Controlador para buscar productos por referencia o nombre
  */
 
-class EscandallloBuscarModuleFrontController extends ModuleFrontController
+class EscandalloBuscarModuleFrontController extends ModuleFrontController
 {
     public function init()
     {
@@ -75,7 +75,7 @@ class EscandallloBuscarModuleFrontController extends ModuleFrontController
         ];
 
         $breadcrumb['links'][] = [
-            'title' => $this->l('Búsqueda'),
+            'title' => $this->l('Bï¿½squeda'),
             'url' => ''
         ];
 
