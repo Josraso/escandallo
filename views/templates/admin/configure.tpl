@@ -592,9 +592,10 @@
                                         <i class="icon-download"></i> {l s='Descargar Ejemplo CSV' mod='escandallo'}
                                     </a>
                                 </p>
-                                <pre style="margin-top: 15px;">id_principal,nombre_principal,imagen_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria,id_tax_rules_group
-1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,1,"CYL-001","Cilindro completo","Cilindro para motor 2T",89.99,"cyl001.jpg",10,5,1
-1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,2,"PIS-001","Pistón","Pistón estándar",45.50,"pis001.jpg",25,5,1</pre>
+                                <p class="text-info"><i class="icon-info-circle"></i> <strong>{l s='Separador: punto y coma (;)' mod='escandallo'}</strong> - {l s='Compatible con Excel' mod='escandallo'}</p>
+                                <pre style="margin-top: 15px;">id_principal;nombre_principal;imagen_principal;id_parte;nombre_parte;imagen_parte;id_product;numero_imagen;referencia;nombre_producto;descripcion;precio;imagen_producto;stock;id_categoria;id_tax_rules_group
+1;"Motor 2T";"motor.jpg";101;"Cilindro";"cilindro.jpg";0;1;"CYL-001";"Cilindro completo";"Cilindro para motor 2T";89.99;"cyl001.jpg";10;5;1
+1;"Motor 2T";"motor.jpg";101;"Cilindro";"cilindro.jpg";0;2;"PIS-001";"Pistón";"Pistón estándar";45.50;"pis001.jpg";25;5;1</pre>
                             </div>
                         </div>
                     </div>
@@ -823,10 +824,10 @@ $(document).ready(function() {
     $('#download-csv-example').on('click', function(e) {
         e.preventDefault();
         var csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "id_principal,nombre_principal,imagen_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria,id_tax_rules_group\n";
-        csvContent += '1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,1,"CYL-001","Cilindro completo","Cilindro para motor 2T",89.99,"cyl001.jpg",10,5,1\n';
-        csvContent += '1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,2,"PIS-001","Pistón","Pistón estándar",45.50,"pis001.jpg",25,5,1\n';
-        csvContent += '1,"Motor 2T","motor.jpg",102,"Carburador","carburador.jpg",0,1,"CARB-001","Carburador completo","Carburador Dellorto",125.00,"carb001.jpg",5,5,1';
+        csvContent += "id_principal;nombre_principal;imagen_principal;id_parte;nombre_parte;imagen_parte;id_product;numero_imagen;referencia;nombre_producto;descripcion;precio;imagen_producto;stock;id_categoria;id_tax_rules_group\n";
+        csvContent += '1;"Motor 2T";"motor.jpg";101;"Cilindro";"cilindro.jpg";0;1;"CYL-001";"Cilindro completo";"Cilindro para motor 2T";89.99;"cyl001.jpg";10;5;1\n';
+        csvContent += '1;"Motor 2T";"motor.jpg";101;"Cilindro";"cilindro.jpg";0;2;"PIS-001";"Pistón";"Pistón estándar";45.50;"pis001.jpg";25;5;1\n';
+        csvContent += '1;"Motor 2T";"motor.jpg";102;"Carburador";"carburador.jpg";0;1;"CARB-001";"Carburador completo";"Carburador Dellorto";125.00;"carb001.jpg";5;5;1';
 
         var encodedUri = encodeURI(csvContent);
         var link = document.createElement("a");

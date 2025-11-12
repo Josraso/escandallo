@@ -434,11 +434,11 @@ class Escandallo extends Module
             return $this->displayError($this->l('No se pudo abrir el archivo CSV'));
         }
 
-        $header = fgetcsv($handle, 0, ',');
+        $header = fgetcsv($handle, 0, ';');
         $imported = 0;
         $errors = 0;
 
-        while (($data = fgetcsv($handle, 0, ',')) !== false) {
+        while (($data = fgetcsv($handle, 0, ';')) !== false) {
             if (count($data) < 16) {
                 $errors++;
                 continue;
@@ -530,9 +530,35 @@ class Escandallo extends Module
 
                                 if ($image->add()) {
                                     $image->associateTo($this->context->shop->id);
-                                    // Copiar imagen a la carpeta de PrestaShop
+
+                                    // Copiar imagen a PrestaShop correctamente
                                     $new_path = $image->getPathForCreation();
-                                    ImageManager::resize($image_path, $new_path . '.jpg');
+
+                                    // Detectar tipo de imagen
+                                    $imageInfo = @getimagesize($image_path);
+                                    $imageType = $imageInfo ? $imageInfo[2] : IMAGETYPE_JPEG;
+
+                                    // Extensión según tipo
+                                    $ext = '.jpg';
+                                    if ($imageType === IMAGETYPE_PNG) {
+                                        $ext = '.png';
+                                    } elseif ($imageType === IMAGETYPE_GIF) {
+                                        $ext = '.gif';
+                                    }
+
+                                    // Copiar imagen original
+                                    if (copy($image_path, $new_path . $ext)) {
+                                        // Generar todas las miniaturas
+                                        $imagesTypes = ImageType::getImagesTypes('products');
+                                        foreach ($imagesTypes as $imageType) {
+                                            ImageManager::resize(
+                                                $image_path,
+                                                $new_path . '-' . stripslashes($imageType['name']) . $ext,
+                                                $imageType['width'],
+                                                $imageType['height']
+                                            );
+                                        }
+                                    }
                                 }
                             }
                         }

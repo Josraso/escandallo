@@ -2,6 +2,8 @@
 
 ## Formato del CSV
 
+**IMPORTANTE: El separador es punto y coma (;) - Compatible con Excel**
+
 El archivo CSV debe tener las siguientes columnas (16 columnas en total):
 
 1. **id_principal** - ID del principal (ej: 1)
@@ -24,7 +26,7 @@ El archivo CSV debe tener las siguientes columnas (16 columnas en total):
 ## Ejemplo de línea CSV:
 
 ```
-1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,1,"CYL-001","Cilindro completo","Cilindro para motor 2T",89.99,"cyl001.jpg",10,5,1
+1;"Motor 2T";"motor.jpg";101;"Cilindro";"cilindro.jpg";0;1;"CYL-001";"Cilindro completo";"Cilindro para motor 2T";89.99;"cyl001.jpg";10;5;1
 ```
 
 ## UBICACIÓN DE LAS IMÁGENES
@@ -76,7 +78,8 @@ Las imágenes de los productos se deben colocar en:
    - Los nombres deben coincidir exactamente con lo que pones en el CSV
 
 2. **Preparar el archivo CSV:**
-   - 16 columnas separadas por comas
+   - 16 columnas separadas por **punto y coma (;)**
+   - Compatible con Excel - guarda como CSV (delimitado por punto y coma)
    - Primera fila: encabezados (opcional, se ignora)
    - Codificación: UTF-8
    - Puedes descargar un archivo de ejemplo desde el backoffice
