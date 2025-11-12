@@ -96,13 +96,14 @@
                                         {l s='Ver' mod='escandallo'}
                                     </button>
 
-                                    <form action="{$cart_url}" method="post" class="escandallo-add-to-cart-form" style="display: inline-block;">
+                                    <form action="{$urls.pages.cart}" method="post" style="display: inline-block;">
+                                        <input type="hidden" name="token" value="{$static_token}">
                                         <input type="hidden" name="id_product" value="{$producto.id_product}">
                                         <input type="hidden" name="qty" value="1">
                                         <input type="hidden" name="add" value="1">
                                         <input type="hidden" name="action" value="update">
                                         <button type="submit"
-                                                class="btn btn-sm btn-primary escandallo-btn-add-cart"
+                                                class="btn btn-sm btn-primary"
                                                 data-button-action="add-to-cart"
                                                 {if !$producto.puede_comprar}disabled style="opacity: 0.5; cursor: not-allowed;"{/if}>
                                             <i class="fa fa-shopping-cart"></i>
