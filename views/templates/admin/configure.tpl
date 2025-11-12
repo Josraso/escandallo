@@ -47,7 +47,7 @@
                 <h3>{l s='Configuración General' mod='escandallo'}</h3>
 
                 <div class="alert alert-success">
-                    <h4><i class="icon-link"></i> {l s='URL del Módulo (ARREGLADA)' mod='escandallo'}</h4>
+                    <h4><i class="icon-link"></i> {l s='URL del Módulo' mod='escandallo'}</h4>
                     <p>
                         <strong style="font-size: 20px; color: #28a745;">
                             <a href="{$shop_url}escandallo" target="_blank" style="color: #28a745;">
@@ -190,7 +190,7 @@
                             </table>
                         {else}
                             <div class="alert alert-warning">
-                                {l s='No hay productos principales creados a�n.' mod='escandallo'}
+                                {l s='No hay productos principales creados aún.' mod='escandallo'}
                             </div>
                         {/if}
                     </div>
@@ -330,7 +330,7 @@
                             </table>
                         {else}
                             <div class="alert alert-warning">
-                                {l s='No hay partes/diagramas creados a�n.' mod='escandallo'}
+                                {l s='No hay partes/diagramas creados aún.' mod='escandallo'}
                             </div>
                         {/if}
                     </div>
@@ -422,7 +422,7 @@
                                     <tr>
                                         <th>{l s='Principal' mod='escandallo'}</th>
                                         <th>{l s='Parte' mod='escandallo'}</th>
-                                        <th>{l s='N� Imagen' mod='escandallo'}</th>
+                                        <th>{l s='Nº Imagen' mod='escandallo'}</th>
                                         <th>{l s='Referencia' mod='escandallo'}</th>
                                         <th>{l s='Producto' mod='escandallo'}</th>
                                         <th class="text-center">{l s='Acciones' mod='escandallo'}</th>
@@ -459,7 +459,7 @@
                             </table>
                         {else}
                             <div class="alert alert-warning">
-                                {l s='No hay productos asociados a�n.' mod='escandallo'}
+                                {l s='No hay productos asociados aún.' mod='escandallo'}
                             </div>
                         {/if}
                     </div>
@@ -468,51 +468,30 @@
 
             <!-- TAB: Importar CSV -->
             <div class="tab-pane" id="tab-import">
-                <h3>{l s='Importaci�n Masiva CSV' mod='escandallo'}</h3>
-                
+                <h3>{l s='Importación Masiva CSV' mod='escandallo'}</h3>
+
                 <div class="panel">
                     <div class="panel-heading">
                         <i class="icon-upload"></i>
                         {l s='Subir Archivo CSV' mod='escandallo'}
                     </div>
                     <div class="panel-body">
-                        <div class="alert alert-info">
-                            <h4><i class="icon-info-circle"></i> {l s='Formato del CSV' mod='escandallo'}</h4>
-                            <p>{l s='El archivo CSV debe tener las siguientes columnas en este orden:' mod='escandallo'}</p>
-                            <ol>
-                                <li><strong>id_principal:</strong> {l s='ID del producto principal' mod='escandallo'}</li>
-                                <li><strong>nombre_principal:</strong> {l s='Nombre del producto principal' mod='escandallo'}</li>
-                                <li><strong>id_parte:</strong> {l s='ID de la parte/diagrama' mod='escandallo'}</li>
-                                <li><strong>nombre_parte:</strong> {l s='Nombre de la parte/diagrama' mod='escandallo'}</li>
-                                <li><strong>imagen_parte:</strong> {l s='Nombre del archivo de imagen de la parte' mod='escandallo'}</li>
-                                <li><strong>id_product:</strong> {l s='ID del producto (0 para crear nuevo)' mod='escandallo'}</li>
-                                <li><strong>numero_imagen:</strong> {l s='Número de referencia en el diagrama' mod='escandallo'}</li>
-                                <li><strong>referencia:</strong> {l s='Referencia del producto' mod='escandallo'}</li>
-                                <li><strong>nombre_producto:</strong> {l s='Nombre del producto' mod='escandallo'}</li>
-                                <li><strong>descripcion:</strong> {l s='Descripci�n del producto' mod='escandallo'}</li>
-                                <li><strong>precio:</strong> {l s='Precio del producto' mod='escandallo'}</li>
-                                <li><strong>imagen_producto:</strong> {l s='Nombre del archivo de imagen del producto' mod='escandallo'}</li>
-                                <li><strong>stock:</strong> {l s='Cantidad en stock' mod='escandallo'}</li>
-                                <li><strong>id_categoria:</strong> {l s='ID de la categor�a de PrestaShop' mod='escandallo'}</li>
-                            </ol>
-                            <p class="text-muted">
-                                <em>{l s='Nota: Las im�genes deben estar previamente subidas en las carpetas correspondientes.' mod='escandallo'}</em>
-                            </p>
-                        </div>
-
                         <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" enctype="multipart/form-data" class="form-horizontal">
                             <div class="form-group">
                                 <label class="control-label col-lg-3 required">
                                     {l s='Archivo CSV' mod='escandallo'}
                                 </label>
                                 <div class="col-lg-9">
-                                    <input type="file" 
-                                           name="csv_file" 
-                                           accept=".csv" 
+                                    <input type="file"
+                                           name="csv_file"
+                                           accept=".csv"
                                            required>
+                                    <p class="help-block">
+                                        <i class="icon-info-circle"></i> {l s='Selecciona el archivo CSV con el formato especificado abajo' mod='escandallo'}
+                                    </p>
                                 </div>
                             </div>
-                            
+
                             <div class="panel-footer">
                                 <button type="submit" name="submitImportCSV" class="btn btn-default pull-right">
                                     <i class="icon-upload"></i>
@@ -523,16 +502,101 @@
                     </div>
                 </div>
 
-                <!-- Ejemplo de CSV -->
-                <div class="panel">
-                    <div class="panel-heading">
-                        <i class="icon-file-text"></i>
-                        {l s='Ejemplo de archivo CSV' mod='escandallo'}
+                <!-- Accordion: Información del CSV -->
+                <div class="panel-group" id="csv-help-accordion">
+                    <!-- Formato del CSV -->
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#csv-help-accordion" href="#collapse-formato">
+                                    <i class="icon-info-circle"></i> {l s='Formato del CSV (15 columnas)' mod='escandallo'}
+                                    <i class="icon-chevron-down pull-right"></i>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse-formato" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <p>{l s='El archivo CSV debe tener las siguientes columnas en este orden:' mod='escandallo'}</p>
+                                <ol>
+                                    <li><strong>id_principal:</strong> {l s='ID del producto principal' mod='escandallo'}</li>
+                                    <li><strong>nombre_principal:</strong> {l s='Nombre del producto principal' mod='escandallo'}</li>
+                                    <li><strong>imagen_principal:</strong> {l s='Nombre del archivo de imagen del principal (ej: motor.jpg)' mod='escandallo'}</li>
+                                    <li><strong>id_parte:</strong> {l s='ID de la parte/diagrama' mod='escandallo'}</li>
+                                    <li><strong>nombre_parte:</strong> {l s='Nombre de la parte/diagrama' mod='escandallo'}</li>
+                                    <li><strong>imagen_parte:</strong> {l s='Nombre del archivo de imagen de la parte (ej: cilindro.jpg)' mod='escandallo'}</li>
+                                    <li><strong>id_product:</strong> {l s='ID del producto (0 para crear nuevo)' mod='escandallo'}</li>
+                                    <li><strong>numero_imagen:</strong> {l s='Número de referencia en el diagrama' mod='escandallo'}</li>
+                                    <li><strong>referencia:</strong> {l s='Referencia del producto' mod='escandallo'}</li>
+                                    <li><strong>nombre_producto:</strong> {l s='Nombre del producto' mod='escandallo'}</li>
+                                    <li><strong>descripcion:</strong> {l s='Descripción del producto' mod='escandallo'}</li>
+                                    <li><strong>precio:</strong> {l s='Precio del producto' mod='escandallo'}</li>
+                                    <li><strong>imagen_producto:</strong> {l s='Nombre del archivo de imagen del producto (ej: pieza001.jpg)' mod='escandallo'}</li>
+                                    <li><strong>stock:</strong> {l s='Cantidad en stock' mod='escandallo'}</li>
+                                    <li><strong>id_categoria:</strong> {l s='ID de la categoría de PrestaShop' mod='escandallo'}</li>
+                                    <li><strong>id_tax_rules_group:</strong> {l s='ID del grupo de impuestos (ej: 1 para 21% IVA)' mod='escandallo'}</li>
+                                </ol>
+                            </div>
+                        </div>
                     </div>
-                    <div class="panel-body">
-                        <pre>id_principal,nombre_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria
-1,Moto Deportiva,1,Cupula,cupula.jpg,0,1,REF-001,Pantalla cupula,Pantalla original,99.90,pantalla.jpg,10,5
-1,Moto Deportiva,1,Cupula,cupula.jpg,0,2,REF-002,Arandela M6,Arandela de fijación,2.50,arandela.jpg,50,5</pre>
+
+                    <!-- Ubicación de imágenes -->
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#csv-help-accordion" href="#collapse-imagenes">
+                                    <i class="icon-picture-o"></i> {l s='Ubicación de las Imágenes' mod='escandallo'}
+                                    <i class="icon-chevron-down pull-right"></i>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse-imagenes" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <h5><i class="icon-folder-open"></i> {l s='Imágenes de Principales' mod='escandallo'}</h5>
+                                <p><code>/modules/escandallo/views/img/principales/</code></p>
+                                <p class="text-muted">{l s='Ejemplo: Si pones imagen_principal = "motor.jpg", el archivo debe estar en /modules/escandallo/views/img/principales/motor.jpg' mod='escandallo'}</p>
+
+                                <hr>
+
+                                <h5><i class="icon-folder-open"></i> {l s='Imágenes de Partes/Diagramas' mod='escandallo'}</h5>
+                                <p><code>/modules/escandallo/views/img/partes/</code></p>
+                                <p class="text-muted">{l s='Ejemplo: Si pones imagen_parte = "cilindro.jpg", el archivo debe estar en /modules/escandallo/views/img/partes/cilindro.jpg' mod='escandallo'}</p>
+
+                                <hr>
+
+                                <h5><i class="icon-folder-open"></i> {l s='Imágenes de Productos' mod='escandallo'}</h5>
+                                <p><code>/modules/escandallo/views/img/productos/</code></p>
+                                <p class="text-muted">{l s='Ejemplo: Si pones imagen_producto = "pieza001.jpg", el archivo debe estar en /modules/escandallo/views/img/productos/pieza001.jpg' mod='escandallo'}</p>
+
+                                <div class="alert alert-warning" style="margin-top: 15px;">
+                                    <i class="icon-warning"></i> <strong>{l s='Importante:' mod='escandallo'}</strong>
+                                    {l s='Todas las imágenes deben estar subidas ANTES de importar el CSV. Formatos soportados: .jpg, .jpeg, .png, .gif' mod='escandallo'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ejemplo y descarga -->
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#csv-help-accordion" href="#collapse-ejemplo">
+                                    <i class="icon-file-text"></i> {l s='Archivo de Ejemplo' mod='escandallo'}
+                                    <i class="icon-chevron-down pull-right"></i>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse-ejemplo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <p>
+                                    <a href="#" id="download-csv-example" class="btn btn-primary">
+                                        <i class="icon-download"></i> {l s='Descargar Ejemplo CSV' mod='escandallo'}
+                                    </a>
+                                </p>
+                                <pre style="margin-top: 15px;">id_principal,nombre_principal,imagen_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria,id_tax_rules_group
+1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,1,"CYL-001","Cilindro completo","Cilindro para motor 2T",89.99,"cyl001.jpg",10,5,1
+1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,2,"PIS-001","Pistón","Pistón estándar",45.50,"pis001.jpg",25,5,1</pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -754,6 +818,24 @@ $(document).ready(function() {
     addTableSearch('#tab-principales table');
     addTableSearch('#tab-partes table');
     addTableSearch('#tab-productos table');
+
+    // Descargar ejemplo CSV
+    $('#download-csv-example').on('click', function(e) {
+        e.preventDefault();
+        var csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "id_principal,nombre_principal,imagen_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria,id_tax_rules_group\n";
+        csvContent += '1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,1,"CYL-001","Cilindro completo","Cilindro para motor 2T",89.99,"cyl001.jpg",10,5,1\n';
+        csvContent += '1,"Motor 2T","motor.jpg",101,"Cilindro","cilindro.jpg",0,2,"PIS-001","Pistón","Pistón estándar",45.50,"pis001.jpg",25,5,1\n';
+        csvContent += '1,"Motor 2T","motor.jpg",102,"Carburador","carburador.jpg",0,1,"CARB-001","Carburador completo","Carburador Dellorto",125.00,"carb001.jpg",5,5,1';
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "ejemplo_escandallo.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
 });
 </script>
 

@@ -439,25 +439,27 @@ class Escandallo extends Module
         $errors = 0;
 
         while (($data = fgetcsv($handle, 0, ',')) !== false) {
-            if (count($data) < 14) {
+            if (count($data) < 16) {
                 $errors++;
                 continue;
             }
 
             $id_principal = (int)$data[0];
             $nombre_principal = $data[1];
-            $id_parte = (int)$data[2];
-            $nombre_parte = $data[3];
-            $imagen_parte = $data[4];
-            $id_product = (int)$data[5];
-            $numero_imagen = (int)$data[6];
-            $referencia = $data[7];
-            $nombre_producto = $data[8];
-            $descripcion = $data[9];
-            $precio = (float)$data[10];
-            $imagen_producto = $data[11];
-            $stock = (int)$data[12];
-            $id_category = (int)$data[13];
+            $imagen_principal = $data[2];
+            $id_parte = (int)$data[3];
+            $nombre_parte = $data[4];
+            $imagen_parte = $data[5];
+            $id_product = (int)$data[6];
+            $numero_imagen = (int)$data[7];
+            $referencia = $data[8];
+            $nombre_producto = $data[9];
+            $descripcion = $data[10];
+            $precio = (float)$data[11];
+            $imagen_producto = $data[12];
+            $stock = (int)$data[13];
+            $id_category = (int)$data[14];
+            $id_tax_rules_group = (int)$data[15];
 
             try {
                 // Crear o actualizar principal
@@ -469,6 +471,7 @@ class Escandallo extends Module
                     Db::getInstance()->insert('escandallo_principal', [
                         'id_principal' => $id_principal,
                         'nombre' => pSQL($nombre_principal),
+                        'imagen' => pSQL($imagen_principal),
                         'date_add' => date('Y-m-d H:i:s'),
                         'date_upd' => date('Y-m-d H:i:s')
                     ]);
@@ -502,17 +505,37 @@ class Escandallo extends Module
                     $product->reference = $referencia;
                     $product->name = [$this->context->language->id => $nombre_producto];
                     $product->description = [$this->context->language->id => $descripcion];
+                    $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
                     $product->price = $precio;
                     $product->visibility = 'none';
                     $product->active = 1;
                     $product->id_category_default = $id_category;
-                    
+                    $product->id_tax_rules_group = $id_tax_rules_group > 0 ? $id_tax_rules_group : 1;
+
                     if ($product->add()) {
-                        // A�adir a categor�a
-                        $product->addToCategories([$id_category]);
-                        
+                        // Añadir a categoría CORRECTAMENTE
+                        $product->updateCategories([$id_category]);
+
                         // Actualizar stock
                         StockAvailable::setQuantity($product->id, 0, $stock);
+
+                        // Subir imagen si existe
+                        if (!empty($imagen_producto)) {
+                            $image_path = dirname(__FILE__) . '/views/img/productos/' . $imagen_producto;
+                            if (file_exists($image_path)) {
+                                $image = new Image();
+                                $image->id_product = $product->id;
+                                $image->position = Image::getHighestPosition($product->id) + 1;
+                                $image->cover = true;
+
+                                if ($image->add()) {
+                                    $image->associateTo($this->context->shop->id);
+                                    // Copiar imagen a la carpeta de PrestaShop
+                                    $new_path = $image->getPathForCreation();
+                                    ImageManager::resize($image_path, $new_path . '.jpg');
+                                }
+                            }
+                        }
                     }
                 } elseif ($product_exists) {
                     // Producto existe, solo asociar
