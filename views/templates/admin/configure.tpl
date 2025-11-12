@@ -1,16 +1,16 @@
 <div class="panel escandallo-admin-panel">
     <div class="panel-heading">
         <i class="icon-cogs"></i>
-        {l s='Configuraci�n del M�dulo Escandallo' mod='escandallo'}
+        {l s='Configuración del Módulo Escandallo' mod='escandallo'}
     </div>
     
     <div class="panel-body">
-        <!-- Tabs de navegaci�n -->
+        <!-- Tabs de navegación -->
         <ul class="nav nav-tabs" role="tablist">
             <li class="active">
                 <a href="#tab-config" role="tab" data-toggle="tab">
                     <i class="icon-cog"></i>
-                    {l s='Configuraci�n' mod='escandallo'}
+                    {l s='Configuración' mod='escandallo'}
                 </a>
             </li>
             <li>
@@ -42,31 +42,45 @@
         <!-- Contenido de los tabs -->
         <div class="tab-content">
             
-            <!-- TAB: Configuraci�n General -->
+            <!-- TAB: Configuración General -->
             <div class="tab-pane active" id="tab-config">
-                <h3>{l s='Configuraci�n General' mod='escandallo'}</h3>
+                <h3>{l s='Configuración General' mod='escandallo'}</h3>
 
                 <div class="alert alert-info">
                     <h4><i class="icon-info"></i> {l s='Acceso al Escandallo' mod='escandallo'}</h4>
                     <p>
-                        {l s='URL del escandallo (Frontend):' mod='escandallo'} 
-                        <strong>{$shop_url}escandallo</strong>
+                        {l s='URL del escandallo (Frontend):' mod='escandallo'}
+                        <strong><a href="{$shop_url}escandallo" target="_blank">{$shop_url}escandallo</a></strong>
                     </p>
                     <p class="text-muted">
-                        <small>{l s='Esta es la URL p�blica donde los clientes ver�n el escandallo' mod='escandallo'}</small>
+                        <small>{l s='Esta es la URL pública donde los clientes verán el escandallo' mod='escandallo'}</small>
+                    </p>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h4><i class="icon-wrench"></i> {l s='¿Las URLs no funcionan?' mod='escandallo'}</h4>
+                    <p>{l s='Si los enlaces del módulo te llevan al inicio de la tienda, haz clic en el botón de abajo para regenerar las rutas:' mod='escandallo'}</p>
+                    <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" style="margin-top: 15px;">
+                        <button type="submit" name="regenerateRoutes" class="btn btn-warning">
+                            <i class="icon-refresh"></i>
+                            {l s='Regenerar Rutas del Módulo' mod='escandallo'}
+                        </button>
+                    </form>
+                    <p class="text-muted" style="margin-top: 10px;">
+                        <small><strong>{l s='Importante:' mod='escandallo'}</strong> {l s='Después de regenerar las rutas, ve a Parámetros Avanzados > Rendimiento y haz clic en "Limpiar caché"' mod='escandallo'}</small>
                     </p>
                 </div>
             </div>
 
             <!-- TAB: Productos Principales -->
             <div class="tab-pane" id="tab-principales">
-                <h3>{l s='Gesti�n de Productos Principales' mod='escandallo'}</h3>
+                <h3>{l s='Gestión de Productos Principales' mod='escandallo'}</h3>
                 
-                <!-- Formulario para a�adir principal -->
+                <!-- Formulario para añadir principal -->
                 <div class="panel">
                     <div class="panel-heading">
                         <i class="icon-plus"></i>
-                        {l s='A�adir Producto Principal' mod='escandallo'}
+                        {l s='Añadir Producto Principal' mod='escandallo'}
                     </div>
                     <div class="panel-body">
                         <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" enctype="multipart/form-data" class="form-horizontal">
@@ -103,7 +117,7 @@
                             <div class="panel-footer">
                                 <button type="submit" name="submitAddPrincipal" class="btn btn-default pull-right">
                                     <i class="process-icon-save"></i>
-                                    {l s='A�adir Principal' mod='escandallo'}
+                                    {l s='Añadir Principal' mod='escandallo'}
                                 </button>
                             </div>
                         </form>
@@ -124,7 +138,7 @@
                                         <th>{l s='ID' mod='escandallo'}</th>
                                         <th>{l s='Nombre' mod='escandallo'}</th>
                                         <th>{l s='Imagen' mod='escandallo'}</th>
-                                        <th>{l s='Fecha creaci�n' mod='escandallo'}</th>
+                                        <th>{l s='Fecha creación' mod='escandallo'}</th>
                                         <th class="text-center">{l s='Acciones' mod='escandallo'}</th>
                                     </tr>
                                 </thead>
@@ -160,7 +174,7 @@
                                                 </a>
                                                 <a href="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}&deletePrincipal=1&id_principal={$principal.id_principal}"
                                                    class="btn btn-danger btn-sm"
-                                                   onclick="return confirm('{l s='�Est�s seguro de eliminar este principal y todas sus partes?' mod='escandallo'}');"
+                                                   onclick="return confirm('{l s='¿Estás seguro de eliminar este principal y todas sus partes?' mod='escandallo'}');"
                                                    title="{l s='Eliminar' mod='escandallo'}">
                                                     <i class="icon-trash"></i>
                                                 </a>
@@ -180,13 +194,13 @@
 
             <!-- TAB: Partes/Diagramas -->
             <div class="tab-pane" id="tab-partes">
-                <h3>{l s='Gesti�n de Partes/Diagramas' mod='escandallo'}</h3>
+                <h3>{l s='Gestión de Partes/Diagramas' mod='escandallo'}</h3>
                 
-                <!-- Formulario para a�adir parte -->
+                <!-- Formulario para añadir parte -->
                 <div class="panel">
                     <div class="panel-heading">
                         <i class="icon-plus"></i>
-                        {l s='A�adir Parte/Diagrama' mod='escandallo'}
+                        {l s='Añadir Parte/Diagrama' mod='escandallo'}
                     </div>
                     <div class="panel-body">
                         <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" enctype="multipart/form-data" class="form-horizontal">
@@ -240,7 +254,7 @@
                             <div class="panel-footer">
                                 <button type="submit" name="submitAddParte" class="btn btn-default pull-right">
                                     <i class="process-icon-save"></i>
-                                    {l s='A�adir Parte' mod='escandallo'}
+                                    {l s='Añadir Parte' mod='escandallo'}
                                 </button>
                             </div>
                         </form>
@@ -262,7 +276,7 @@
                                         <th>{l s='Principal' mod='escandallo'}</th>
                                         <th>{l s='Nombre' mod='escandallo'}</th>
                                         <th>{l s='Imagen' mod='escandallo'}</th>
-                                        <th>{l s='Fecha creaci�n' mod='escandallo'}</th>
+                                        <th>{l s='Fecha creación' mod='escandallo'}</th>
                                         <th class="text-center">{l s='Acciones' mod='escandallo'}</th>
                                     </tr>
                                 </thead>
@@ -300,7 +314,7 @@
                                                 </a>
                                                 <a href="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}&deleteParte=1&id_parte={$parte.id_parte}"
                                                    class="btn btn-danger btn-sm"
-                                                   onclick="return confirm('{l s='�Est�s seguro de eliminar esta parte?' mod='escandallo'}');"
+                                                   onclick="return confirm('{l s='¿Estás seguro de eliminar esta parte?' mod='escandallo'}');"
                                                    title="{l s='Eliminar' mod='escandallo'}">
                                                     <i class="icon-trash"></i>
                                                 </a>
@@ -320,7 +334,7 @@
 
             <!-- TAB: Productos Asociados -->
             <div class="tab-pane" id="tab-productos">
-                <h3>{l s='Gesti�n de Productos Asociados' mod='escandallo'}</h3>
+                <h3>{l s='Gestión de Productos Asociados' mod='escandallo'}</h3>
                 
                 <!-- Formulario para asociar producto -->
                 <div class="panel">
@@ -429,7 +443,7 @@
                                                 </a>
                                                 <a href="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}&deleteProductoParte=1&id_escandallo_producto={$prod.id_escandallo_producto}"
                                                    class="btn btn-danger btn-sm"
-                                                   onclick="return confirm('{l s='�Est�s seguro de desasociar este producto?' mod='escandallo'}');"
+                                                   onclick="return confirm('{l s='¿Estás seguro de desasociar este producto?' mod='escandallo'}');"
                                                    title="{l s='Desasociar' mod='escandallo'}">
                                                     <i class="icon-trash"></i>
                                                 </a>
@@ -467,7 +481,7 @@
                                 <li><strong>nombre_parte:</strong> {l s='Nombre de la parte/diagrama' mod='escandallo'}</li>
                                 <li><strong>imagen_parte:</strong> {l s='Nombre del archivo de imagen de la parte' mod='escandallo'}</li>
                                 <li><strong>id_product:</strong> {l s='ID del producto (0 para crear nuevo)' mod='escandallo'}</li>
-                                <li><strong>numero_imagen:</strong> {l s='N�mero de referencia en el diagrama' mod='escandallo'}</li>
+                                <li><strong>numero_imagen:</strong> {l s='Número de referencia en el diagrama' mod='escandallo'}</li>
                                 <li><strong>referencia:</strong> {l s='Referencia del producto' mod='escandallo'}</li>
                                 <li><strong>nombre_producto:</strong> {l s='Nombre del producto' mod='escandallo'}</li>
                                 <li><strong>descripcion:</strong> {l s='Descripci�n del producto' mod='escandallo'}</li>
@@ -513,7 +527,7 @@
                     <div class="panel-body">
                         <pre>id_principal,nombre_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria
 1,Moto Deportiva,1,Cupula,cupula.jpg,0,1,REF-001,Pantalla cupula,Pantalla original,99.90,pantalla.jpg,10,5
-1,Moto Deportiva,1,Cupula,cupula.jpg,0,2,REF-002,Arandela M6,Arandela de fijaci�n,2.50,arandela.jpg,50,5</pre>
+1,Moto Deportiva,1,Cupula,cupula.jpg,0,2,REF-002,Arandela M6,Arandela de fijación,2.50,arandela.jpg,50,5</pre>
                     </div>
                 </div>
             </div>

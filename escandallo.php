@@ -1,6 +1,6 @@
 <?php
 /**
- * M�dulo Escandallo para PrestaShop 1.7, 8 y 9
+ * Módulo Escandallo para PrestaShop 1.7, 8 y 9
  *
  * @author    Tu Nombre
  * @copyright Copyright (c) 2025
@@ -29,8 +29,8 @@ class Escandallo extends Module
         parent::__construct();
 
         $this->displayName = $this->l('Escandallo');
-        $this->description = $this->l('M�dulo de escandallo para gesti�n de productos principales, partes y productos finales');
-        $this->confirmUninstall = $this->l('�Est�s seguro de que deseas desinstalar este m�dulo?');
+        $this->description = $this->l('Módulo de escandallo para gestión de productos principales, partes y productos finales');
+        $this->confirmUninstall = $this->l('¿Estás seguro de que deseas desinstalar este módulo?');
     }
 
     public function install()
@@ -49,6 +49,9 @@ class Escandallo extends Module
             !$this->registerHook('moduleRoutes')) {
             return false;
         }
+
+        // Forzar regeneración de rutas
+        $this->clearRoutingCache();
 
         return true;
     }
@@ -196,6 +199,12 @@ class Escandallo extends Module
     {
         $output = '';
 
+        // Regenerar rutas si se solicita
+        if (Tools::isSubmit('regenerateRoutes')) {
+            $this->clearRoutingCache();
+            $output .= $this->displayConfirmation($this->l('Rutas regeneradas correctamente. Por favor, limpia la caché de PrestaShop desde Parámetros Avanzados > Rendimiento.'));
+        }
+
         // Procesar formularios
         if (Tools::isSubmit('submitAddPrincipal')) {
             $output .= $this->processAddPrincipal();
@@ -255,10 +264,10 @@ class Escandallo extends Module
                 VALUES ("' . pSQL($nombre) . '", "' . pSQL($imagen) . '", NOW(), NOW())';
 
         if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Principal a�adido correctamente'));
+            return $this->displayConfirmation($this->l('Principal añadido correctamente'));
         }
 
-        return $this->displayError($this->l('Error al a�adir el principal'));
+        return $this->displayError($this->l('Error al añadir el principal'));
     }
 
     private function processAddParte()
@@ -279,7 +288,7 @@ class Escandallo extends Module
             return $this->displayConfirmation($this->l('Parte a�adida correctamente'));
         }
 
-        return $this->displayError($this->l('Error al a�adir la parte'));
+        return $this->displayError($this->l('Error al añadir la parte'));
     }
 
     private function processAddProductoParte()
@@ -531,7 +540,7 @@ class Escandallo extends Module
         fclose($handle);
 
         return $this->displayConfirmation(
-            sprintf($this->l('Importaci�n completada: %d registros importados, %d errores'), $imported, $errors)
+            sprintf($this->l('Importación completada: %d registros importados, %d errores'), $imported, $errors)
         );
     }
 
@@ -712,5 +721,68 @@ private function renderConfigForm()
             WHERE p.reference LIKE "%' . $query . '%" OR pl.name LIKE "%' . $query . '%"
             ORDER BY pr.nombre ASC, pt.nombre ASC'
         );
+    }
+
+    /**
+     * Limpia la caché de rutas para forzar regeneración
+     */
+    private function clearRoutingCache()
+    {
+        try {
+            // Limpiar caché de Symfony/PrestaShop
+            if (file_exists(_PS_CACHE_DIR_ . 'class_index.php')) {
+                @unlink(_PS_CACHE_DIR_ . 'class_index.php');
+            }
+
+            // Limpiar archivos de caché de routing
+            $cacheFiles = [
+                _PS_ROOT_DIR_ . '/var/cache/dev/appParameters.php',
+                _PS_ROOT_DIR_ . '/var/cache/prod/appParameters.php',
+                _PS_ROOT_DIR_ . '/app/cache/dev/appParameters.php',
+                _PS_ROOT_DIR_ . '/app/cache/prod/appParameters.php',
+            ];
+
+            foreach ($cacheFiles as $file) {
+                if (file_exists($file)) {
+                    @unlink($file);
+                }
+            }
+
+            // Limpiar caché de smarty
+            $smartyCacheDirs = [
+                _PS_ROOT_DIR_ . '/var/cache/dev/smarty',
+                _PS_ROOT_DIR_ . '/var/cache/prod/smarty',
+            ];
+
+            foreach ($smartyCacheDirs as $dir) {
+                if (is_dir($dir)) {
+                    $this->deleteDirectory($dir);
+                }
+            }
+
+            // Forzar reconstrucción de rutas
+            if (class_exists('Dispatcher')) {
+                Dispatcher::getInstance()->clearCache();
+            }
+        } catch (Exception $e) {
+            // Ignorar errores de limpieza de caché
+        }
+    }
+
+    /**
+     * Elimina recursivamente un directorio
+     */
+    private function deleteDirectory($dir)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            is_dir($path) ? $this->deleteDirectory($path) : @unlink($path);
+        }
+        @rmdir($dir);
     }
 }
