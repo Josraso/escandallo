@@ -100,6 +100,7 @@
                                             data-id-product="{$producto.id_product}"
                                             data-product-name="{$producto.name|escape:'html':'UTF-8'}"
                                             data-cart-url="{$cart_url}"
+                                            data-max-stock="{$producto.quantity}"
                                             {if !$producto.puede_comprar}disabled style="opacity: 0.5; cursor: not-allowed;"{/if}>
                                         <i class="fa fa-shopping-cart"></i>
                                         {l s='Añadir' mod='escandallo'}

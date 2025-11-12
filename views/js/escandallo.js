@@ -43,11 +43,11 @@ function showToast(title, message, type) {
 document.addEventListener('DOMContentLoaded', function() {
 
     // ===================================
-    // AÑADIR AL CARRITO
+    // AÑADIR AL CARRITO - USANDO SISTEMA NATIVO DE PRESTASHOP
     // ===================================
 
     const addToCartButtons = document.querySelectorAll('.escandallo-btn-add-cart');
-    
+
     addToCartButtons.forEach(function(button) {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -55,24 +55,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const idProduct = this.getAttribute('data-id-product');
             const productName = this.getAttribute('data-product-name');
             const cartUrl = this.getAttribute('data-cart-url');
+            const maxStock = parseInt(this.getAttribute('data-max-stock')) || 999;
             const originalText = this.innerHTML;
             const self = this;
+
+            // Si ya está deshabilitado, no hacer nada
+            if (this.disabled) {
+                return;
+            }
 
             // Deshabilitar botón mientras se procesa
             this.disabled = true;
             this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-
-            // Obtener token estático
-            let staticToken = '';
-            if (typeof prestashop !== 'undefined' && prestashop.static_token) {
-                staticToken = prestashop.static_token;
-            } else {
-                // Fallback: buscar token en el DOM
-                const tokenInput = document.querySelector('input[name="token"]');
-                if (tokenInput) {
-                    staticToken = tokenInput.value;
-                }
-            }
 
             // Crear FormData para enviar
             const formData = new FormData();
@@ -80,12 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('qty', '1');
             formData.append('add', '1');
             formData.append('action', 'update');
-            formData.append('ajax', '1');
-            if (staticToken) {
-                formData.append('token', staticToken);
+
+            // Obtener token si está disponible
+            if (typeof prestashop !== 'undefined' && prestashop.static_token) {
+                formData.append('token', prestashop.static_token);
             }
 
-            // Enviar petición AJAX
+            // Enviar petición usando el método de PrestaShop
             fetch(cartUrl, {
                 method: 'POST',
                 body: formData,
@@ -93,69 +88,75 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
+            .then(response => response.text())
+            .then(text => {
+                // Intentar parsear como JSON, si falla asumir éxito
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = { success: true };
                 }
-                // Verificar si la respuesta es JSON
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return response.json();
-                } else {
-                    return response.text().then(text => {
-                        console.log('Respuesta del servidor:', text);
-                        return { success: true };
-                    });
-                }
-            })
-            .then(data => {
+
                 // Mostrar mensaje de éxito en el botón
                 self.innerHTML = '<i class="fa fa-check"></i>';
                 self.classList.remove('btn-primary');
                 self.classList.add('btn-success');
 
-                // Mostrar notificación toast
-                showToast('✓ Producto añadido al carrito', productName, 'success');
-
-                // Disparar eventos de PrestaShop para abrir el modal
-                if (typeof prestashop !== 'undefined') {
-                    // Disparar evento updateCart
-                    if (prestashop.emit) {
-                        prestashop.emit('updateCart', {
-                            reason: {
-                                idProduct: idProduct,
-                                idProductAttribute: 0,
-                                linkAction: 'add-to-cart',
-                                cart: data
-                            }
-                        });
-                    }
-
-                    // Disparar evento personalizado para el modal
-                    const cartEvent = new CustomEvent('updateCart', {
-                        detail: data
+                // Actualizar el contador del carrito usando PrestaShop
+                if (typeof prestashop !== 'undefined' && prestashop.emit) {
+                    // Disparar evento updateCart para que PrestaShop actualice el carrito
+                    prestashop.emit('updateCart', {
+                        reason: {
+                            idProduct: idProduct,
+                            idProductAttribute: 0,
+                            linkAction: 'add-to-cart'
+                        }
                     });
-                    document.body.dispatchEvent(cartEvent);
                 }
 
-                // También intentar abrir el modal directamente si existe
-                setTimeout(() => {
-                    const blockcartModal = document.querySelector('#blockcart-modal');
-                    if (blockcartModal) {
-                        // Si existe el modal de PrestaShop 1.7, abrirlo
-                        if (typeof $ !== 'undefined' && $.fn.modal) {
-                            $(blockcartModal).modal('show');
-                        }
-                    }
-                }, 100);
+                // Refrescar el blockcart para actualizar el contador
+                const cartRefreshUrl = prestashop && prestashop.urls && prestashop.urls.pages ?
+                                       prestashop.urls.pages.cart :
+                                       null;
 
-                // Restaurar botón después de 3 segundos
-                setTimeout(() => {
-                    self.innerHTML = originalText;
-                    self.classList.remove('btn-success');
-                    self.classList.add('btn-primary');
-                    self.disabled = false;
-                }, 3000);
+                if (cartRefreshUrl) {
+                    // Recargar el componente del carrito
+                    fetch(cartRefreshUrl + '?ajax=1&action=refresh')
+                        .then(r => r.json())
+                        .then(refreshData => {
+                            if (prestashop && prestashop.emit) {
+                                prestashop.emit('updateCart', {
+                                    reason: refreshData
+                                });
+                            }
+                        })
+                        .catch(err => console.log('No se pudo refrescar el carrito:', err));
+                }
+
+                // Rastrear cuántos productos se han añadido
+                let addedCount = parseInt(self.getAttribute('data-added-count') || '0') + 1;
+                self.setAttribute('data-added-count', addedCount);
+
+                // Si se alcanzó el stock máximo, deshabilitar permanentemente
+                if (addedCount >= maxStock) {
+                    setTimeout(() => {
+                        self.innerHTML = '<i class="fa fa-ban"></i> Sin stock';
+                        self.style.opacity = '0.5';
+                        self.style.cursor = 'not-allowed';
+                        self.disabled = true;
+                        self.classList.remove('btn-success');
+                        self.classList.add('btn-secondary');
+                    }, 1500);
+                } else {
+                    // Restaurar botón después de 1.5 segundos
+                    setTimeout(() => {
+                        self.innerHTML = originalText;
+                        self.classList.remove('btn-success');
+                        self.classList.add('btn-primary');
+                        self.disabled = false;
+                    }, 1500);
+                }
             })
             .catch(error => {
                 console.error('Error al añadir al carrito:', error);
