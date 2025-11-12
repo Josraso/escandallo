@@ -141,10 +141,10 @@ class Escandallo extends Module
 
     public function hookModuleRoutes($params)
     {
-        return [
+        $routes = [
             'module-escandallo-index' => [
                 'controller' => 'index',
-                'rule' => 'escandallo',
+                'rule' => 'diagramas-piezas',
                 'keywords' => [],
                 'params' => [
                     'fc' => 'module',
@@ -154,7 +154,7 @@ class Escandallo extends Module
             ],
             'module-escandallo-partes' => [
                 'controller' => 'partes',
-                'rule' => 'escandallo/principal/{id_principal}',
+                'rule' => 'diagramas-piezas/producto/{id_principal}',
                 'keywords' => [
                     'id_principal' => ['regexp' => '[0-9]+', 'param' => 'id_principal']
                 ],
@@ -166,7 +166,7 @@ class Escandallo extends Module
             ],
             'module-escandallo-productos' => [
                 'controller' => 'productos',
-                'rule' => 'escandallo/parte/{id_parte}',
+                'rule' => 'diagramas-piezas/diagrama/{id_parte}',
                 'keywords' => [
                     'id_parte' => ['regexp' => '[0-9]+', 'param' => 'id_parte']
                 ],
@@ -178,7 +178,7 @@ class Escandallo extends Module
             ],
             'module-escandallo-buscar' => [
                 'controller' => 'buscar',
-                'rule' => 'escandallo/buscar',
+                'rule' => 'diagramas-piezas/buscar',
                 'keywords' => [],
                 'params' => [
                     'fc' => 'module',
@@ -187,6 +187,8 @@ class Escandallo extends Module
                 ]
             ]
         ];
+
+        return $routes;
     }
 
     public function hookDisplayHeader()

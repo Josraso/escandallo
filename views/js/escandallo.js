@@ -14,90 +14,102 @@ document.addEventListener('DOMContentLoaded', function() {
     addToCartButtons.forEach(function(button) {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const idProduct = this.getAttribute('data-id-product');
-            const cartUrl = this.getAttribute('data-cart-url');
+            let cartUrl = this.getAttribute('data-cart-url');
             const originalText = this.innerHTML;
-            
+            const self = this;
+
             // Deshabilitar botón mientras se procesa
             this.disabled = true;
             this.innerHTML = '<i class="material-icons">hourglass_empty</i> Añadiendo...';
-            
-            // Crear formulario para enviar
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = cartUrl;
-            
-            const inputProduct = document.createElement('input');
-            inputProduct.type = 'hidden';
-            inputProduct.name = 'id_product';
-            inputProduct.value = idProduct;
-            
-            const inputQty = document.createElement('input');
-            inputQty.type = 'hidden';
-            inputQty.name = 'qty';
-            inputQty.value = '1';
-            
-            const inputAdd = document.createElement('input');
-            inputAdd.type = 'hidden';
-            inputAdd.name = 'add';
-            inputAdd.value = '1';
-            
-            const inputToken = document.createElement('input');
-            inputToken.type = 'hidden';
-            inputToken.name = 'token';
-            inputToken.value = prestashop.static_token;
-            
-            form.appendChild(inputProduct);
-            form.appendChild(inputQty);
-            form.appendChild(inputAdd);
-            form.appendChild(inputToken);
-            
-            document.body.appendChild(form);
-            
-            // Enviar formulario
-            fetch(form.action, {
+
+            // Obtener token estático
+            let staticToken = '';
+            if (typeof prestashop !== 'undefined' && prestashop.static_token) {
+                staticToken = prestashop.static_token;
+            } else {
+                // Fallback: buscar token en el DOM
+                const tokenInput = document.querySelector('input[name="token"]');
+                if (tokenInput) {
+                    staticToken = tokenInput.value;
+                }
+            }
+
+            // Añadir ajax=1 para obtener respuesta JSON
+            if (cartUrl.indexOf('?') === -1) {
+                cartUrl += '?ajax=1&action=update';
+            } else {
+                cartUrl += '&ajax=1&action=update';
+            }
+
+            // Crear FormData para enviar
+            const formData = new FormData();
+            formData.append('id_product', idProduct);
+            formData.append('qty', '1');
+            formData.append('add', '1');
+            formData.append('action', 'update');
+            if (staticToken) {
+                formData.append('token', staticToken);
+            }
+
+            // Enviar petición AJAX
+            fetch(cartUrl, {
                 method: 'POST',
-                body: new FormData(form)
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             })
-            .then(response => response.json())
+            .then(response => {
+                // Verificar si la respuesta es JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // Si no es JSON, consideramos que se añadió correctamente
+                    return { success: true };
+                }
+            })
             .then(data => {
                 // Mostrar mensaje de éxito
-                this.innerHTML = '<i class="material-icons">check_circle</i> ¡Añadido!';
-                this.classList.remove('btn-primary');
-                this.classList.add('btn-success');
-                
+                self.innerHTML = '<i class="material-icons">check_circle</i> ¡Añadido!';
+                self.classList.remove('btn-primary');
+                self.classList.add('btn-success');
+
                 // Actualizar contador del carrito si existe
-                if (typeof prestashop !== 'undefined' && prestashop.cart) {
-                    prestashop.emit('updateCart', {
-                        reason: data
-                    });
+                if (typeof prestashop !== 'undefined') {
+                    if (prestashop.emit) {
+                        prestashop.emit('updateCart', {
+                            reason: data
+                        });
+                    } else {
+                        // Recargar el bloque del carrito manualmente
+                        prestashop.cart = prestashop.cart || {};
+                        prestashop.cart.products_count = (prestashop.cart.products_count || 0) + 1;
+                    }
                 }
-                
+
                 // Restaurar botón después de 2 segundos
                 setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.classList.remove('btn-success');
-                    this.classList.add('btn-primary');
-                    this.disabled = false;
+                    self.innerHTML = originalText;
+                    self.classList.remove('btn-success');
+                    self.classList.add('btn-primary');
+                    self.disabled = false;
                 }, 2000);
-                
-                document.body.removeChild(form);
             })
             .catch(error => {
-                console.error('Error:', error);
-                this.innerHTML = '<i class="material-icons">error</i> Error';
-                this.classList.remove('btn-primary');
-                this.classList.add('btn-danger');
-                
+                console.error('Error al añadir al carrito:', error);
+                self.innerHTML = '<i class="material-icons">error</i> Error';
+                self.classList.remove('btn-primary');
+                self.classList.add('btn-danger');
+
                 setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.classList.remove('btn-danger');
-                    this.classList.add('btn-primary');
-                    this.disabled = false;
+                    self.innerHTML = originalText;
+                    self.classList.remove('btn-danger');
+                    self.classList.add('btn-primary');
+                    self.disabled = false;
                 }, 2000);
-                
-                document.body.removeChild(form);
             });
         });
     });
