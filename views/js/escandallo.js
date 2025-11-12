@@ -3,12 +3,49 @@
  * Maneja la funcionalidad de añadir al carrito y otras interacciones
  */
 
+/**
+ * Función para mostrar notificaciones toast
+ */
+function showToast(title, message, type) {
+    // Crear contenedor de toasts si no existe
+    let toastContainer = document.querySelector('.escandallo-toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'escandallo-toast-container';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Crear toast
+    const toast = document.createElement('div');
+    toast.className = 'escandallo-toast escandallo-toast-' + type;
+    toast.innerHTML = `
+        <div class="escandallo-toast-title">${title}</div>
+        <div class="escandallo-toast-message">${message}</div>
+    `;
+
+    // Añadir al contenedor
+    toastContainer.appendChild(toast);
+
+    // Animar entrada
+    setTimeout(() => {
+        toast.classList.add('escandallo-toast-show');
+    }, 10);
+
+    // Remover después de 4 segundos
+    setTimeout(() => {
+        toast.classList.remove('escandallo-toast-show');
+        setTimeout(() => {
+            toastContainer.removeChild(toast);
+        }, 300);
+    }, 4000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // ===================================
     // AÑADIR AL CARRITO
     // ===================================
-    
+
     const addToCartButtons = document.querySelectorAll('.escandallo-btn-add-cart');
     
     addToCartButtons.forEach(function(button) {
@@ -16,13 +53,14 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             const idProduct = this.getAttribute('data-id-product');
+            const productName = this.getAttribute('data-product-name');
             const cartUrl = this.getAttribute('data-cart-url');
             const originalText = this.innerHTML;
             const self = this;
 
             // Deshabilitar botón mientras se procesa
             this.disabled = true;
-            this.innerHTML = '<i class="material-icons">hourglass_empty</i> Añadiendo...';
+            this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
 
             // Obtener token estático
             let staticToken = '';
@@ -71,10 +109,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .then(data => {
-                // Mostrar mensaje de éxito
-                self.innerHTML = '<i class="material-icons">check_circle</i> ¡Añadido!';
+                // Mostrar mensaje de éxito en el botón
+                self.innerHTML = '<i class="fa fa-check"></i>';
                 self.classList.remove('btn-primary');
                 self.classList.add('btn-success');
+
+                // Mostrar notificación toast
+                showToast('✓ Producto añadido al carrito', productName, 'success');
 
                 // Disparar eventos de PrestaShop para abrir el modal
                 if (typeof prestashop !== 'undefined') {
@@ -108,17 +149,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }, 100);
 
-                // Restaurar botón después de 2 segundos
+                // Restaurar botón después de 3 segundos
                 setTimeout(() => {
                     self.innerHTML = originalText;
                     self.classList.remove('btn-success');
                     self.classList.add('btn-primary');
                     self.disabled = false;
-                }, 2000);
+                }, 3000);
             })
             .catch(error => {
                 console.error('Error al añadir al carrito:', error);
-                self.innerHTML = '<i class="material-icons">error</i> Error';
+                self.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error';
                 self.classList.remove('btn-primary');
                 self.classList.add('btn-danger');
 
@@ -245,118 +286,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const nombre = this.getAttribute('data-nombre');
             const referencia = this.getAttribute('data-referencia');
 
-            // Crear overlay para el modal
+            // Crear overlay simple
             const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.95);
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                cursor: pointer;
-                animation: fadeIn 0.3s ease;
+            overlay.className = 'escandallo-image-modal';
+            overlay.innerHTML = `
+                <div class="escandallo-modal-overlay"></div>
+                <div class="escandallo-modal-content">
+                    <button class="escandallo-modal-close">
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <div class="escandallo-modal-header">
+                        <h3>${nombre}</h3>
+                        <p>Ref: ${referencia}</p>
+                    </div>
+                    <div class="escandallo-modal-body">
+                        <img src="${imagenUrl}" alt="${nombre}">
+                    </div>
+                </div>
             `;
 
-            // Crear contenedor del contenido
-            const modalContent = document.createElement('div');
-            modalContent.style.cssText = `
-                max-width: 90%;
-                max-height: 90%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                cursor: default;
-            `;
+            // Añadir al body
+            document.body.appendChild(overlay);
 
-            // Crear título del producto
-            const titulo = document.createElement('div');
-            titulo.style.cssText = `
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 15px 30px;
-                border-radius: 10px 10px 0 0;
-                text-align: center;
-                width: 100%;
-                max-width: 700px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            `;
-            titulo.innerHTML = `
-                <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">${nombre}</div>
-                <div style="font-size: 14px; opacity: 0.9;">Ref: ${referencia}</div>
-            `;
-
-            // Crear imagen
-            const imagen = document.createElement('img');
-            imagen.src = imagenUrl;
-            imagen.alt = nombre;
-            imagen.style.cssText = `
-                max-width: 700px;
-                max-height: 500px;
-                width: auto;
-                height: auto;
-                object-fit: contain;
-                background: white;
-                padding: 20px;
-                border-radius: 0 0 10px 10px;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-                cursor: zoom-in;
-            `;
-
-            // Botón cerrar
-            const btnCerrar = document.createElement('button');
-            btnCerrar.innerHTML = '<i class="material-icons">close</i>';
-            btnCerrar.style.cssText = `
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                background: rgba(255, 255, 255, 0.9);
-                border: none;
-                border-radius: 50%;
-                width: 45px;
-                height: 45px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-                transition: all 0.3s ease;
-                z-index: 10000;
-            `;
-
-            btnCerrar.addEventListener('mouseenter', function() {
-                this.style.background = 'rgba(255, 255, 255, 1)';
-                this.style.transform = 'scale(1.1)';
-            });
-
-            btnCerrar.addEventListener('mouseleave', function() {
-                this.style.background = 'rgba(255, 255, 255, 0.9)';
-                this.style.transform = 'scale(1)';
-            });
-
-            // Ensamblar modal
-            modalContent.appendChild(titulo);
-            modalContent.appendChild(imagen);
-            overlay.appendChild(btnCerrar);
-            overlay.appendChild(modalContent);
-
-            // Prevenir que el clic en el contenido cierre el modal
-            modalContent.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-
-            // Cerrar al hacer clic en el overlay
-            overlay.addEventListener('click', function() {
+            // Cerrar al hacer clic en el botón de cerrar
+            const btnCerrar = overlay.querySelector('.escandallo-modal-close');
+            btnCerrar.addEventListener('click', function() {
                 document.body.removeChild(overlay);
             });
 
-            // Cerrar al hacer clic en el botón
-            btnCerrar.addEventListener('click', function() {
+            // Cerrar al hacer clic fuera del contenido
+            const modalOverlay = overlay.querySelector('.escandallo-modal-overlay');
+            modalOverlay.addEventListener('click', function() {
                 document.body.removeChild(overlay);
             });
 
@@ -368,22 +328,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
             document.addEventListener('keydown', handleEsc);
-
-            // Añadir al body
-            document.body.appendChild(overlay);
-
-            // Añadir animación CSS si no existe
-            if (!document.getElementById('escandallo-modal-styles')) {
-                const style = document.createElement('style');
-                style.id = 'escandallo-modal-styles';
-                style.innerHTML = `
-                    @keyframes fadeIn {
-                        from { opacity: 0; }
-                        to { opacity: 1; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
         });
     });
 

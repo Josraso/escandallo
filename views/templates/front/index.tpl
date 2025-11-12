@@ -18,7 +18,7 @@
                            required>
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary escandallo-search-btn">
-                            <i class="material-icons">search</i>
+                            <i class="fa fa-search"></i>
                             {l s='Buscar' mod='escandallo'}
                         </button>
                     </div>

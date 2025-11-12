@@ -19,7 +19,7 @@
                            required>
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary escandallo-search-btn">
-                            <i class="material-icons">search</i>
+                            <i class="fa fa-search"></i>
                             {l s='Buscar' mod='escandallo'}
                         </button>
                     </div>
@@ -30,7 +30,7 @@
         <!-- Botón regresar -->
         <div class="escandallo-navigation">
             <a href="{$index_url}" class="btn btn-secondary escandallo-btn-back">
-                <i class="material-icons">arrow_back</i>
+                <i class="fa fa-arrow-left"></i>
                 {l s='Regresar' mod='escandallo'}
             </a>
         </div>

@@ -19,7 +19,7 @@
                            required>
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary escandallo-search-btn">
-                            <i class="material-icons">search</i>
+                            <i class="fa fa-search"></i>
                             {l s='Buscar' mod='escandallo'}
                         </button>
                     </div>
@@ -30,7 +30,7 @@
         <!-- Botón regresar -->
         <div class="escandallo-navigation">
             <a href="{$partes_url}" class="btn btn-secondary escandallo-btn-back">
-                <i class="material-icons">arrow_back</i>
+                <i class="fa fa-arrow-left"></i>
                 {l s='Regresar' mod='escandallo'}
             </a>
         </div>
@@ -73,11 +73,11 @@
                                 <td class="text-center escandallo-producto-stock">
                                     {if $producto.tiene_stock}
                                         <span class="escandallo-stock-badge escandallo-stock-available">
-                                            <i class="material-icons">check_circle</i>
+                                            <i class="fa fa-check-circle"></i>
                                         </span>
                                     {else}
                                         <span class="escandallo-stock-badge escandallo-stock-unavailable">
-                                            <i class="material-icons">cancel</i>
+                                            <i class="fa fa-times-circle"></i>
                                         </span>
                                     {/if}
                                 </td>
@@ -90,15 +90,17 @@
                                             data-imagen="{$producto.imagen_url}"
                                             data-nombre="{$producto.name|escape:'html':'UTF-8'}"
                                             data-referencia="{$producto.reference|escape:'html':'UTF-8'}">
-                                        <i class="material-icons" style="font-size: 14px; vertical-align: middle;">visibility</i>
+                                        <i class="fa fa-eye"></i>
                                         {l s='Ver' mod='escandallo'}
                                     </button>
                                     {if $producto.puede_comprar}
                                         <button type="button"
                                                 class="btn btn-sm btn-primary escandallo-btn-add-cart"
                                                 data-id-product="{$producto.id_product}"
+                                                data-product-name="{$producto.name|escape:'html':'UTF-8'}"
                                                 data-cart-url="{$cart_url}">
-                                            {l s='Agregar al Carrito' mod='escandallo'}
+                                            <i class="fa fa-shopping-cart"></i>
+                                            {l s='Añadir' mod='escandallo'}
                                         </button>
                                     {else}
                                         <button type="button"
