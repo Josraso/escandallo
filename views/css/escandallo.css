@@ -1,0 +1,523 @@
+/* ===================================
+   ESCANDALLO - ESTILOS GENERALES
+   =================================== */
+
+.escandallo-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ===================================
+   BUSCADOR FIJO
+   =================================== */
+
+.escandallo-search-bar {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+}
+
+.escandallo-search-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.escandallo-search-input {
+    height: 50px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 4px 0 0 4px;
+}
+
+.escandallo-search-input:focus {
+    border-color: #00aff0;
+    box-shadow: none;
+}
+
+.escandallo-search-btn {
+    height: 50px;
+    padding: 0 30px;
+    background: #00aff0;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.escandallo-search-btn:hover {
+    background: #0099d6;
+    transform: translateY(-2px);
+}
+
+.escandallo-search-btn .material-icons {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* ===================================
+   NAVEGACIÓN
+   =================================== */
+
+.escandallo-navigation {
+    margin-bottom: 20px;
+}
+
+.escandallo-btn-back {
+    background: #6c757d;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.escandallo-btn-back:hover {
+    background: #5a6268;
+    color: #fff;
+    transform: translateX(-5px);
+}
+
+.escandallo-btn-back .material-icons {
+    vertical-align: middle;
+    margin-right: 5px;
+    font-size: 18px;
+}
+
+/* ===================================
+   TÍTULOS
+   =================================== */
+
+.escandallo-page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.escandallo-subtitle {
+    font-size: 18px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* ===================================
+   GRID DE PRINCIPALES
+   =================================== */
+
+.escandallo-principales-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.escandallo-principal-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.escandallo-principal-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.escandallo-card-image {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.escandallo-card-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.escandallo-principal-card:hover .escandallo-card-image img {
+    transform: scale(1.1);
+}
+
+.escandallo-card-body {
+    padding: 20px;
+    text-align: center;
+}
+
+.escandallo-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    min-height: 48px;
+}
+
+.escandallo-btn-view {
+    background: #00aff0;
+    border: none;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+    width: 100%;
+}
+
+.escandallo-btn-view:hover {
+    background: #0099d6;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ===================================
+   GRID DE PARTES
+   =================================== */
+
+.escandallo-partes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.escandallo-parte-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.escandallo-parte-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ===================================
+   IMAGEN DEL DIAGRAMA TÉCNICO
+   =================================== */
+
+.escandallo-diagram-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.escandallo-diagram-image {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+/* ===================================
+   TABLA DE PRODUCTOS
+   =================================== */
+
+.escandallo-productos-table-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.escandallo-productos-table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.escandallo-productos-table thead {
+    background: #f8f9fa;
+}
+
+.escandallo-productos-table thead th {
+    font-weight: 700;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.escandallo-productos-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.escandallo-productos-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.escandallo-productos-table td {
+    vertical-align: middle;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.escandallo-producto-ref {
+    font-size: 20px;
+    color: #00aff0;
+    font-weight: 700;
+    text-align: center;
+    width: 80px;
+}
+
+.escandallo-producto-code {
+    font-family: 'Courier New', monospace;
+    color: #666;
+    font-size: 14px;
+}
+
+.escandallo-producto-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.escandallo-producto-price {
+    font-size: 18px;
+    color: #28a745;
+    font-weight: 700;
+}
+
+/* ===================================
+   BADGES DE STOCK
+   =================================== */
+
+.escandallo-stock-badge {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+}
+
+.escandallo-stock-available {
+    background: #d4edda;
+    color: #28a745;
+}
+
+.escandallo-stock-available .material-icons {
+    font-size: 20px;
+    line-height: 30px;
+}
+
+.escandallo-stock-unavailable {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.escandallo-stock-unavailable .material-icons {
+    font-size: 20px;
+    line-height: 30px;
+}
+
+/* ===================================
+   BOTONES DE ACCIONES
+   =================================== */
+
+.escandallo-producto-actions {
+    white-space: nowrap;
+}
+
+.escandallo-btn-ver {
+    padding: 8px 16px;
+    font-size: 13px;
+    margin-right: 8px;
+    border: 2px solid #00aff0;
+    color: #00aff0;
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.escandallo-btn-ver:hover {
+    background: #00aff0;
+    color: #fff;
+}
+
+.escandallo-btn-add-cart {
+    padding: 8px 16px;
+    font-size: 13px;
+    background: #00aff0;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.escandallo-btn-add-cart:hover {
+    background: #0099d6;
+    transform: translateY(-2px);
+}
+
+/* ===================================
+   TABLA DE BÚSQUEDA
+   =================================== */
+
+.escandallo-search-results {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.escandallo-search-table {
+    width: 100%;
+}
+
+.escandallo-search-table thead {
+    background: #f8f9fa;
+}
+
+.escandallo-search-table thead th {
+    font-weight: 700;
+    color: #333;
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.escandallo-search-table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.escandallo-search-image img {
+    border-radius: 4px;
+}
+
+.escandallo-link {
+    color: #00aff0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.escandallo-link:hover {
+    color: #0099d6;
+    text-decoration: underline;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+    .escandallo-page-title {
+        font-size: 24px;
+    }
+
+    .escandallo-subtitle {
+        font-size: 16px;
+    }
+
+    .escandallo-principales-grid,
+    .escandallo-partes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .escandallo-search-bar {
+        position: relative;
+        top: 0;
+    }
+
+    .escandallo-productos-table-container {
+        padding: 15px;
+        overflow-x: auto;
+    }
+
+    .escandallo-productos-table {
+        font-size: 12px;
+    }
+
+    .escandallo-productos-table td,
+    .escandallo-productos-table th {
+        padding: 10px 8px;
+    }
+
+    .escandallo-producto-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .escandallo-btn-ver,
+    .escandallo-btn-add-cart {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .escandallo-principales-grid,
+    .escandallo-partes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .escandallo-search-input {
+        font-size: 14px;
+    }
+
+    .escandallo-btn-view {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+/* ===================================
+   ANIMACIONES
+   =================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.escandallo-principal-card,
+.escandallo-parte-card {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* ===================================
+   UTILIDADES
+   =================================== */
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}

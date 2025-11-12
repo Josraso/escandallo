@@ -1,0 +1,11 @@
+id_principal,nombre_principal,id_parte,nombre_parte,imagen_parte,id_product,numero_imagen,referencia,nombre_producto,descripcion,precio,imagen_producto,stock,id_categoria
+1,Super Furious RR 125,1,Cupula,cupula_diagram.jpg,0,1,3710000-U728A-00,Pantalla cuenta km Super Furious RR,Pantalla original de cuenta kilómetros,99.90,pantalla.jpg,10,2
+1,Super Furious RR 125,1,Cupula,cupula_diagram.jpg,0,2,GB/T 96.1-2002,Arandela 6 Super Furious RR,Arandela de fijación M6,2.50,arandela.jpg,50,2
+1,Super Furious RR 125,1,Cupula,cupula_diagram.jpg,0,4,3710001-S928-00,Embellecedor cuenta km Super Furious RR,Embellecedor decorativo,19.90,embellecedor.jpg,15,2
+1,Super Furious RR 125,1,Cupula,cupula_diagram.jpg,0,5,9190002,Cierre de rosca M5 19 Super Furious RR,Cierre de rosca M5,5.50,cierre.jpg,30,2
+1,Super Furious RR 125,2,Cuadro instrumentacion,cuadro_diagram.jpg,0,1,3731000-S928-00,Soporte cuenta km Super Furious RR,Soporte metálico del cuadro,19.95,soporte.jpg,8,2
+1,Super Furious RR 125,2,Cuadro instrumentacion,cuadro_diagram.jpg,0,2,3710001-S921-00,Soporte cuenta km 2 Super Furious RR,Soporte secundario,12.50,soporte2.jpg,12,2
+1,Super Furious RR 125,3,Semi manillares,manillares_diagram.jpg,0,1,3820000-S940-00,Rele de luz delantera Super Furious RR,Relé eléctrico,20.50,rele.jpg,20,2
+2,MTR MCT E4,5,Sistema electrico,sistema_electrico.jpg,0,1,ELE-001,Cable principal MTR MCT,Cable de conexión principal,45.00,cable.jpg,5,2
+2,MTR MCT E4,5,Sistema electrico,sistema_electrico.jpg,0,2,ELE-002,Fusible 15A MTR MCT,Fusible de protección,3.50,fusible.jpg,40,2
+3,MTR Adventure,6,Guardabarros delantero,guardabarros.jpg,0,1,GUA-001,Guardabarros completo MTR Adventure,Guardabarros delantero original,89.90,guardabarros.jpg,6,2
