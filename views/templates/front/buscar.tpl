@@ -1,7 +1,7 @@
 {extends file='page.tpl'}
 
 {block name='page_title'}
-    <h1 class="escandallo-page-title">{l s='Búsqueda de Productos' mod='escandallo'}</h1>
+    <h1 class="escandallo-page-title">{l s='BÃºsqueda de Productos' mod='escandallo'}</h1>
     {if $query}
         <p class="escandallo-subtitle">{l s='Resultados para:' mod='escandallo'} "{$query|escape:'html':'UTF-8'}"</p>
     {/if}
@@ -29,7 +29,7 @@
             </form>
         </div>
 
-        <!-- Botón regresar -->
+        <!-- BotÃ³n regresar -->
         <div class="escandallo-navigation">
             <a href="{$index_url}" class="btn btn-secondary escandallo-btn-back">
                 <i class="material-icons">arrow_back</i>
@@ -37,7 +37,7 @@
             </a>
         </div>
 
-        <!-- Resultados de búsqueda -->
+        <!-- Resultados de bÃºsqueda -->
         <div class="escandallo-search-results">
             {if $query && strlen($query) >= 2}
                 {if $resultados && count($resultados) > 0}
@@ -95,12 +95,12 @@
                     </div>
                 {else}
                     <div class="alert alert-warning">
-                        {l s='No se encontraron resultados para tu búsqueda.' mod='escandallo'}
+                        {l s='No se encontraron resultados para tu bÃºsqueda.' mod='escandallo'}
                     </div>
                 {/if}
             {else}
                 <div class="alert alert-info">
-                    {l s='Por favor, introduce al menos 2 caracteres para realizar la búsqueda.' mod='escandallo'}
+                    {l s='Por favor, introduce al menos 2 caracteres para realizar la bÃºsqueda.' mod='escandallo'}
                 </div>
             {/if}
         </div>

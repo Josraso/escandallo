@@ -1,6 +1,6 @@
 <?php
 /**
- * Controlador para mostrar los productos de una parte/diagrama específico
+ * Controlador para mostrar los productos de una parte/diagrama especÃ­fico
  */
 
 class EscandalloProductosModuleFrontController extends ModuleFrontController

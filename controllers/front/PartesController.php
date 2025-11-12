@@ -29,7 +29,7 @@ class EscandalloPartesModuleFrontController extends ModuleFrontController
 
         $partes = $escandallo->getPartesByPrincipal($id_principal);
 
-        // Procesar imágenes de las partes
+        // Procesar imÃ¡genes de las partes
         foreach ($partes as &$parte) {
             if (!empty($parte['imagen'])) {
                 $parte['imagen_url'] = $this->context->link->getMediaLink(

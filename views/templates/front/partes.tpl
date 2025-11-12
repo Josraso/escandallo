@@ -27,7 +27,7 @@
             </form>
         </div>
 
-        <!-- Botón regresar -->
+        <!-- BotÃ³n regresar -->
         <div class="escandallo-navigation">
             <a href="{$index_url}" class="btn btn-secondary escandallo-btn-back">
                 <i class="material-icons">arrow_back</i>

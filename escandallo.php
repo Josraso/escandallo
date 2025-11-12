@@ -621,7 +621,8 @@ private function renderConfigForm()
             'principales' => $principales,
             'partes' => $partes,
             'productos_partes' => $productos_partes,
-            'shop_url' => $shop_url
+            'shop_url' => $shop_url,
+            'link' => $this->context->link
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/configure.tpl');

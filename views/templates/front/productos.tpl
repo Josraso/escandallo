@@ -27,7 +27,7 @@
             </form>
         </div>
 
-        <!-- Botón regresar -->
+        <!-- BotÃ³n regresar -->
         <div class="escandallo-navigation">
             <a href="{$partes_url}" class="btn btn-secondary escandallo-btn-back">
                 <i class="material-icons">arrow_back</i>
@@ -35,7 +35,7 @@
             </a>
         </div>
 
-        <!-- Imagen del diagrama técnico -->
+        <!-- Imagen del diagrama tÃ©cnico -->
         {if $parte.imagen_url}
             <div class="escandallo-diagram-container">
                 <img src="{$parte.imagen_url}" 
@@ -51,7 +51,7 @@
                     <thead>
                         <tr>
                             <th>{l s='Referencia' mod='escandallo'}</th>
-                            <th>{l s='Código' mod='escandallo'}</th>
+                            <th>{l s='CÃ³digo' mod='escandallo'}</th>
                             <th>{l s='Nombre' mod='escandallo'}</th>
                             <th class="text-center">{l s='Stock' mod='escandallo'}</th>
                             <th class="text-right">{l s='Precio' mod='escandallo'}</th>

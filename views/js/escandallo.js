@@ -1,12 +1,12 @@
 /**
- * JavaScript para el módulo Escandallo
- * Maneja la funcionalidad de añadir al carrito y otras interacciones
+ * JavaScript para el mÃ³dulo Escandallo
+ * Maneja la funcionalidad de aÃ±adir al carrito y otras interacciones
  */
 
 document.addEventListener('DOMContentLoaded', function() {
     
     // ===================================
-    // AÑADIR AL CARRITO
+    // AÃ‘ADIR AL CARRITO
     // ===================================
     
     const addToCartButtons = document.querySelectorAll('.escandallo-btn-add-cart');
@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const cartUrl = this.getAttribute('data-cart-url');
             const originalText = this.innerHTML;
             
-            // Deshabilitar botón mientras se procesa
+            // Deshabilitar botÃ³n mientras se procesa
             this.disabled = true;
-            this.innerHTML = '<i class="material-icons">hourglass_empty</i> Añadiendo...';
+            this.innerHTML = '<i class="material-icons">hourglass_empty</i> AÃ±adiendo...';
             
             // Crear formulario para enviar
             const form = document.createElement('form');
@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                // Mostrar mensaje de éxito
-                this.innerHTML = '<i class="material-icons">check_circle</i> ¡Añadido!';
+                // Mostrar mensaje de Ã©xito
+                this.innerHTML = '<i class="material-icons">check_circle</i> Â¡AÃ±adido!';
                 this.classList.remove('btn-primary');
                 this.classList.add('btn-success');
                 
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
                 
-                // Restaurar botón después de 2 segundos
+                // Restaurar botÃ³n despuÃ©s de 2 segundos
                 setTimeout(() => {
                     this.innerHTML = originalText;
                     this.classList.remove('btn-success');
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ===================================
-    // BÚSQUEDA CON AUTOCOMPLETADO (OPCIONAL)
+    // BÃšSQUEDA CON AUTOCOMPLETADO (OPCIONAL)
     // ===================================
     
     const searchInput = document.querySelector('.escandallo-search-input');
@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (query.length >= 2) {
                 searchTimeout = setTimeout(function() {
-                    // Aquí podrías implementar autocompletado si lo deseas
-                    console.log('Búsqueda:', query);
+                    // AquÃ­ podrÃ­as implementar autocompletado si lo deseas
+                    console.log('BÃºsqueda:', query);
                 }, 500);
             }
         });
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ===================================
-    // ANIMACIÓN DE ENTRADA DE CARDS
+    // ANIMACIÃ“N DE ENTRADA DE CARDS
     // ===================================
     
     const cards = document.querySelectorAll('.escandallo-principal-card, .escandallo-parte-card');
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ===================================
-    // SMOOTH SCROLL PARA NAVEGACIÓN
+    // SMOOTH SCROLL PARA NAVEGACIÃ“N
     // ===================================
     
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

@@ -17,7 +17,7 @@ class EscandalloIndexModuleFrontController extends ModuleFrontController
         $escandallo = Module::getInstanceByName('escandallo');
         $principales = $escandallo->getPrincipales();
 
-        // Procesar imágenes
+        // Procesar imÃ¡genes
         foreach ($principales as &$principal) {
             if (!empty($principal['imagen'])) {
                 $principal['imagen_url'] = $this->context->link->getMediaLink(
