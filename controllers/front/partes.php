@@ -17,14 +17,14 @@ class EscandalloPartesModuleFrontController extends ModuleFrontController
         $id_principal = (int)Tools::getValue('id_principal');
 
         if ($id_principal <= 0) {
-            Tools::redirect($this->context->link->getModuleLink('escandallo', 'index'));
+            Tools::redirect($this->context->link->getModuleLink('escandallo', 'principal'));
         }
 
         $escandallo = Module::getInstanceByName('escandallo');
         $principal = $escandallo->getPrincipalById($id_principal);
 
         if (!$principal) {
-            Tools::redirect($this->context->link->getModuleLink('escandallo', 'index'));
+            Tools::redirect($this->context->link->getModuleLink('escandallo', 'principal'));
         }
 
         $partes = $escandallo->getPartesByPrincipal($id_principal);
@@ -46,7 +46,7 @@ class EscandalloPartesModuleFrontController extends ModuleFrontController
             'principal' => $principal,
             'partes' => $partes,
             'module_dir' => $escandallo->getPathUri(),
-            'index_url' => $this->context->link->getModuleLink('escandallo', 'index'),
+            'index_url' => $this->context->link->getModuleLink('escandallo', 'principal'),
             'search_url' => $this->context->link->getModuleLink('escandallo', 'buscar')
         ]);
 
@@ -63,7 +63,7 @@ class EscandalloPartesModuleFrontController extends ModuleFrontController
 
         $breadcrumb['links'][] = [
             'title' => $this->l('Escandallo'),
-            'url' => $this->context->link->getModuleLink('escandallo', 'index')
+            'url' => $this->context->link->getModuleLink('escandallo', 'principal')
         ];
 
         if ($principal) {

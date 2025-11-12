@@ -3,9 +3,8 @@
    =================================== */
 
 .escandallo-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 15px;
+    width: 100%;
+    padding: 15px 20px;
 }
 
 /* ===================================
@@ -320,6 +319,18 @@
     font-weight: 500;
     color: #333;
     font-size: 14px;
+}
+
+.escandallo-producto-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.escandallo-producto-link:hover {
+    color: #5568d3;
+    text-decoration: underline;
 }
 
 .escandallo-producto-price {

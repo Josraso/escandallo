@@ -17,14 +17,14 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
         $id_parte = (int)Tools::getValue('id_parte');
 
         if ($id_parte <= 0) {
-            Tools::redirect($this->context->link->getModuleLink('escandallo', 'index'));
+            Tools::redirect($this->context->link->getModuleLink('escandallo', 'principal'));
         }
 
         $escandallo = Module::getInstanceByName('escandallo');
         $parte = $escandallo->getParteById($id_parte);
 
         if (!$parte) {
-            Tools::redirect($this->context->link->getModuleLink('escandallo', 'index'));
+            Tools::redirect($this->context->link->getModuleLink('escandallo', 'principal'));
         }
 
         $productos = $escandallo->getProductosByParte($id_parte);
@@ -73,7 +73,7 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
             'parte' => $parte,
             'productos' => $productos,
             'module_dir' => $escandallo->getPathUri(),
-            'index_url' => $this->context->link->getModuleLink('escandallo', 'index'),
+            'index_url' => $this->context->link->getModuleLink('escandallo', 'principal'),
             'partes_url' => $this->context->link->getModuleLink('escandallo', 'partes', ['id_principal' => $parte['id_principal']]),
             'search_url' => $this->context->link->getModuleLink('escandallo', 'buscar'),
             'cart_url' => $this->context->link->getPageLink('cart', true, null, ['action' => 'add'])
@@ -92,7 +92,7 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
 
         $breadcrumb['links'][] = [
             'title' => $this->l('Escandallo'),
-            'url' => $this->context->link->getModuleLink('escandallo', 'index')
+            'url' => $this->context->link->getModuleLink('escandallo', 'principal')
         ];
 
         if ($parte) {

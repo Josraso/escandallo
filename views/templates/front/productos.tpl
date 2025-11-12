@@ -68,7 +68,9 @@
                                     {$producto.reference|escape:'html':'UTF-8'}
                                 </td>
                                 <td class="escandallo-producto-name">
-                                    {$producto.name|escape:'html':'UTF-8'}
+                                    <a href="{$producto.product_url}" class="escandallo-producto-link">
+                                        {$producto.name|escape:'html':'UTF-8'}
+                                    </a>
                                 </td>
                                 <td class="text-center escandallo-producto-stock">
                                     {if $producto.tiene_stock}
@@ -93,22 +95,15 @@
                                         <i class="fa fa-eye"></i>
                                         {l s='Ver' mod='escandallo'}
                                     </button>
-                                    {if $producto.puede_comprar}
-                                        <button type="button"
-                                                class="btn btn-sm btn-primary escandallo-btn-add-cart"
-                                                data-id-product="{$producto.id_product}"
-                                                data-product-name="{$producto.name|escape:'html':'UTF-8'}"
-                                                data-cart-url="{$cart_url}">
-                                            <i class="fa fa-shopping-cart"></i>
-                                            {l s='Añadir' mod='escandallo'}
-                                        </button>
-                                    {else}
-                                        <button type="button"
-                                                class="btn btn-sm btn-secondary"
-                                                disabled>
-                                            {l s='No disponible' mod='escandallo'}
-                                        </button>
-                                    {/if}
+                                    <button type="button"
+                                            class="btn btn-sm btn-primary escandallo-btn-add-cart"
+                                            data-id-product="{$producto.id_product}"
+                                            data-product-name="{$producto.name|escape:'html':'UTF-8'}"
+                                            data-cart-url="{$cart_url}"
+                                            {if !$producto.puede_comprar}disabled style="opacity: 0.5; cursor: not-allowed;"{/if}>
+                                        <i class="fa fa-shopping-cart"></i>
+                                        {l s='Añadir' mod='escandallo'}
+                                    </button>
                                 </td>
                             </tr>
                         {/foreach}
