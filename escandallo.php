@@ -142,26 +142,17 @@ class Escandallo extends Module
     public function hookModuleRoutes($params)
     {
         return [
-            // Ruta principal - debe ir primera para evitar conflictos
-            'module-escandallo-index' => [
-                'controller' => 'index',
-                'rule' => 'escandallo',
+            // IMPORTANTE: Las rutas más específicas DEBEN ir PRIMERO
+            // Si ponemos 'escandallo' primero, captura todo y no deja pasar las otras
+
+            'module-escandallo-buscar' => [
+                'controller' => 'buscar',
+                'rule' => 'escandallo/buscar',
                 'keywords' => [],
                 'params' => [
                     'fc' => 'module',
                     'module' => 'escandallo',
-                    'controller' => 'index'
-                ]
-            ],
-            // Ruta alternativa con /index explícito
-            'module-escandallo-index-alt' => [
-                'controller' => 'index',
-                'rule' => 'escandallo/index',
-                'keywords' => [],
-                'params' => [
-                    'fc' => 'module',
-                    'module' => 'escandallo',
-                    'controller' => 'index'
+                    'controller' => 'buscar'
                 ]
             ],
             'module-escandallo-partes' => [
@@ -188,14 +179,15 @@ class Escandallo extends Module
                     'controller' => 'productos'
                 ]
             ],
-            'module-escandallo-buscar' => [
-                'controller' => 'buscar',
-                'rule' => 'escandallo/buscar',
+            // Ruta principal VA AL FINAL para que no capture las otras
+            'module-escandallo-index' => [
+                'controller' => 'index',
+                'rule' => 'escandallo-piezas',
                 'keywords' => [],
                 'params' => [
                     'fc' => 'module',
                     'module' => 'escandallo',
-                    'controller' => 'buscar'
+                    'controller' => 'index'
                 ]
             ]
         ];

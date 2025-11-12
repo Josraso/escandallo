@@ -47,36 +47,35 @@
                 <h3>{l s='Configuración General' mod='escandallo'}</h3>
 
                 <div class="alert alert-success">
-                    <h4><i class="icon-link"></i> {l s='URL del Módulo' mod='escandallo'}</h4>
+                    <h4><i class="icon-link"></i> {l s='URL del Módulo (NUEVA)' mod='escandallo'}</h4>
                     <p>
-                        {l s='Esta URL funciona SIEMPRE:' mod='escandallo'}<br>
-                        <strong><a href="{$shop_url}index.php?fc=module&module=escandallo&controller=index" target="_blank" style="font-size: 16px;">
-                            {$shop_url}index.php?fc=module&module=escandallo&controller=index
-                        </a></strong>
+                        <strong style="font-size: 18px; color: #28a745;">
+                            <a href="{$shop_url}escandallo-piezas" target="_blank" style="color: #28a745;">
+                                {$shop_url}escandallo-piezas
+                            </a>
+                        </strong>
+                    </p>
+                    <p class="text-muted" style="margin-top: 10px;">
+                        <small>{l s='URL alternativa: ' mod='escandallo'}
+                        <code>{$shop_url}index.php?fc=module&module=escandallo&controller=index</code></small>
                     </p>
                 </div>
 
-                <div class="alert alert-warning">
-                    <h4><i class="icon-wrench"></i> {l s='¿No funciona /escandallo?' mod='escandallo'}</h4>
-                    <p>{l s='Para activar la URL bonita /escandallo, sigue estos pasos:' mod='escandallo'}</p>
+                <div class="alert alert-info">
+                    <h4><i class="icon-wrench"></i> {l s='Activar URL amigable' mod='escandallo'}</h4>
+                    <p>{l s='Para que /escandallo-piezas funcione, haz esto:' mod='escandallo'}</p>
 
-                    <ol style="margin: 15px 0; font-size: 14px;">
-                        <li style="margin-bottom: 10px;">
-                            <strong>{l s='1. Regenerar Rutas' mod='escandallo'}</strong>
+                    <ol style="margin: 10px 0;">
+                        <li><strong>{l s='1. Regenerar Rutas' mod='escandallo'}</strong>
                             <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" style="display: inline-block; margin-left: 10px;">
-                                <button type="submit" name="regenerateRoutes" class="btn btn-warning">
+                                <button type="submit" name="regenerateRoutes" class="btn btn-warning btn-sm">
                                     <i class="icon-refresh"></i> {l s='Regenerar' mod='escandallo'}
                                 </button>
                             </form>
                         </li>
-                        <li style="margin-bottom: 10px;"><strong>{l s='2. Limpiar caché:' mod='escandallo'}</strong> Parámetros Avanzados > Rendimiento > Limpiar caché</li>
-                        <li style="margin-bottom: 10px;"><strong>{l s='3. Verificar SEO:' mod='escandallo'}</strong> Tráfico y SEO > SEO y URLs > Activar URLs amigables y Reescritura</li>
-                        <li><strong>{l s='4. Si no funciona:' mod='escandallo'}</strong> Reinstalar módulo (no pierde datos)</li>
+                        <li>{l s='2. Limpiar caché (Rendimiento)' mod='escandallo'}</li>
+                        <li>{l s='3. Verificar URLs amigables (SEO y URLs)' mod='escandallo'}</li>
                     </ol>
-
-                    <div class="alert alert-info" style="margin-top: 15px;">
-                        <i class="icon-info-circle"></i> <strong>{l s='Nota:' mod='escandallo'}</strong> {l s='La URL alternativa de arriba funciona aunque /escandallo no funcione.' mod='escandallo'}
-                    </div>
                 </div>
             </div>
 
