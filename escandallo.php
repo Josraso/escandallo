@@ -887,8 +887,32 @@ class Escandallo extends Module
         // Añadir imágenes de partes
         $this->addFolderToZip($zip, $modulePath . '/views/img/partes', 'imagenes/partes');
 
-        // Añadir imágenes de productos
-        $this->addFolderToZip($zip, $modulePath . '/views/img/productos', 'imagenes/productos');
+        // Añadir imágenes de productos (DESDE PRESTASHOP, NO DEL MÓDULO)
+        // Recorrer los productos y copiar sus imágenes reales
+        if ($results) {
+            $productos_exportados = [];
+            foreach ($results as $row) {
+                if ($row['id_product'] && !in_array($row['id_product'], $productos_exportados)) {
+                    $productos_exportados[] = $row['id_product'];
+                    $images = Image::getImages($this->context->language->id, $row['id_product']);
+
+                    if (!empty($images) && isset($images[0])) {
+                        $image_id = $images[0]['id_image'];
+                        $image_obj = new Image($image_id);
+
+                        // Buscar el archivo de imagen (puede ser jpg, png, gif)
+                        $extensions = ['jpg', 'png', 'gif'];
+                        foreach ($extensions as $ext) {
+                            $image_path = _PS_PROD_IMG_DIR_ . $image_obj->getExistingImgPath() . '.' . $ext;
+                            if (file_exists($image_path)) {
+                                $zip->addFile($image_path, 'imagenes/productos/' . $image_id . '.' . $ext);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         $zip->close();
 
