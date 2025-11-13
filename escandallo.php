@@ -544,11 +544,20 @@ class Escandallo extends Module
                     if (!$principal_exists) {
                         Db::getInstance()->insert('escandallo_principal', [
                             'id_principal' => $id_principal,
-                            'nombre' => pSQL($nombre_principal),
                             'imagen' => pSQL($imagen_principal),
                             'date_add' => date('Y-m-d H:i:s'),
                             'date_upd' => date('Y-m-d H:i:s')
                         ]);
+
+                        // Insertar nombre en TODOS los idiomas
+                        $languages = Language::getLanguages(false);
+                        foreach ($languages as $lang) {
+                            Db::getInstance()->insert('escandallo_principal_lang', [
+                                'id_principal' => $id_principal,
+                                'id_lang' => (int)$lang['id_lang'],
+                                'nombre' => pSQL($nombre_principal)
+                            ]);
+                        }
                     }
                 }
 
@@ -562,11 +571,20 @@ class Escandallo extends Module
                         Db::getInstance()->insert('escandallo_parte', [
                             'id_parte' => $id_parte,
                             'id_principal' => $id_principal,
-                            'nombre' => pSQL($nombre_parte),
                             'imagen' => pSQL($imagen_parte),
                             'date_add' => date('Y-m-d H:i:s'),
                             'date_upd' => date('Y-m-d H:i:s')
                         ]);
+
+                        // Insertar nombre en TODOS los idiomas
+                        $languages = Language::getLanguages(false);
+                        foreach ($languages as $lang) {
+                            Db::getInstance()->insert('escandallo_parte_lang', [
+                                'id_parte' => $id_parte,
+                                'id_lang' => (int)$lang['id_lang'],
+                                'nombre' => pSQL($nombre_parte)
+                            ]);
+                        }
                     }
                 }
 
@@ -743,13 +761,15 @@ class Escandallo extends Module
 
     private function processExportCSV()
     {
+        $id_lang = (int)$this->context->language->id;
+
         // Obtener TODOS los datos: principales, partes y productos (con o sin asociaciones)
         $sql = 'SELECT
                     ep.id_principal,
-                    ep.nombre as nombre_principal,
+                    epl.nombre as nombre_principal,
                     ep.imagen as imagen_principal,
                     epa.id_parte,
-                    epa.nombre as nombre_parte,
+                    epal.nombre as nombre_parte,
                     epa.imagen as imagen_parte,
                     epp.id_product,
                     epp.numero_imagen,
@@ -760,10 +780,14 @@ class Escandallo extends Module
                     p.id_category_default,
                     p.id_tax_rules_group
                 FROM `' . _DB_PREFIX_ . 'escandallo_principal` ep
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` epl
+                    ON (ep.id_principal = epl.id_principal AND epl.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_principal = ep.id_principal
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` epal
+                    ON (epa.id_parte = epal.id_parte AND epal.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp ON epp.id_parte = epa.id_parte
                 LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
-                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . (int)$this->context->language->id . '
+                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . $id_lang . '
                 ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
 
         $results = Db::getInstance()->executeS($sql);
@@ -870,14 +894,15 @@ class Escandallo extends Module
 
         // 1. Crear CSV en memoria
         $csvContent = chr(0xEF).chr(0xBB).chr(0xBF); // BOM UTF-8
+        $id_lang = (int)$this->context->language->id;
 
         // Query para obtener datos
         $sql = 'SELECT
                     ep.id_principal,
-                    ep.nombre as nombre_principal,
+                    epl.nombre as nombre_principal,
                     ep.imagen as imagen_principal,
                     epa.id_parte,
-                    epa.nombre as nombre_parte,
+                    epal.nombre as nombre_parte,
                     epa.imagen as imagen_parte,
                     epp.id_product,
                     epp.numero_imagen,
@@ -888,10 +913,14 @@ class Escandallo extends Module
                     p.id_category_default,
                     p.id_tax_rules_group
                 FROM `' . _DB_PREFIX_ . 'escandallo_principal` ep
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` epl
+                    ON (ep.id_principal = epl.id_principal AND epl.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_principal = ep.id_principal
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` epal
+                    ON (epa.id_parte = epal.id_parte AND epal.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp ON epp.id_parte = epa.id_parte
                 LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
-                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . (int)$this->context->language->id . '
+                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . $id_lang . '
                 ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
 
         $results = Db::getInstance()->executeS($sql);
