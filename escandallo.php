@@ -1,6 +1,7 @@
 <?php
 /**
  * Módulo Escandallo para PrestaShop 1.7, 8 y 9
+ * Versión 2.0 - Multiidioma
  *
  * @author    Tu Nombre
  * @copyright Copyright (c) 2025
@@ -17,7 +18,7 @@ class Escandallo extends Module
     {
         $this->name = 'escandallo';
         $this->tab = 'administration';
-        $this->version = '1.0.0';
+        $this->version = '2.0.0';
         $this->author = 'Tu Nombre';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = [
@@ -74,10 +75,9 @@ class Escandallo extends Module
     {
         $sql = [];
 
-        // Tabla de principales
+        // Tabla de principales (sin nombre, ahora en _lang)
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'escandallo_principal` (
             `id_principal` int(11) NOT NULL AUTO_INCREMENT,
-            `nombre` varchar(255) NOT NULL,
             `imagen` varchar(255) DEFAULT NULL,
             `activo` tinyint(1) DEFAULT 1,
             `position` int(11) DEFAULT 0,
@@ -86,11 +86,18 @@ class Escandallo extends Module
             PRIMARY KEY (`id_principal`)
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-        // Tabla de partes/diagramas
+        // Tabla de principales - multiidioma
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'escandallo_principal_lang` (
+            `id_principal` int(11) NOT NULL,
+            `id_lang` int(11) NOT NULL,
+            `nombre` varchar(255) NOT NULL,
+            PRIMARY KEY (`id_principal`, `id_lang`)
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+        // Tabla de partes/diagramas (sin nombre, ahora en _lang)
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'escandallo_parte` (
             `id_parte` int(11) NOT NULL AUTO_INCREMENT,
             `id_principal` int(11) NOT NULL,
-            `nombre` varchar(255) NOT NULL,
             `imagen` varchar(255) DEFAULT NULL,
             `activo` tinyint(1) DEFAULT 1,
             `position` int(11) DEFAULT 0,
@@ -98,6 +105,14 @@ class Escandallo extends Module
             `date_upd` datetime NOT NULL,
             PRIMARY KEY (`id_parte`),
             KEY `id_principal` (`id_principal`)
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+        // Tabla de partes - multiidioma
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'escandallo_parte_lang` (
+            `id_parte` int(11) NOT NULL,
+            `id_lang` int(11) NOT NULL,
+            `nombre` varchar(255) NOT NULL,
+            PRIMARY KEY (`id_parte`, `id_lang`)
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
         // Tabla de relaciones producto-parte
@@ -126,7 +141,9 @@ class Escandallo extends Module
     {
         $sql = [
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'escandallo_producto_parte`',
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'escandallo_parte_lang`',
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'escandallo_parte`',
+            'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'escandallo_principal_lang`',
             'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'escandallo_principal`'
         ];
 
@@ -267,43 +284,89 @@ class Escandallo extends Module
 
     private function processAddPrincipal()
     {
-        $nombre = Tools::getValue('nombre_principal');
+        $nombres = []; // Array de nombres por idioma
+        $languages = Language::getLanguages(false);
+
+        // Recoger nombres de todos los idiomas
+        foreach ($languages as $lang) {
+            $nombre = Tools::getValue('nombre_principal_' . $lang['id_lang']);
+            if (!empty($nombre)) {
+                $nombres[$lang['id_lang']] = $nombre;
+            }
+        }
+
+        if (empty($nombres)) {
+            return $this->displayError($this->l('El nombre del principal es obligatorio (al menos un idioma)'));
+        }
+
         $imagen = $this->uploadImage('imagen_principal', 'principales');
 
-        if (empty($nombre)) {
-            return $this->displayError($this->l('El nombre del principal es obligatorio'));
+        // 1. Insertar en tabla principal (sin nombre)
+        $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'escandallo_principal`
+                (`imagen`, `date_add`, `date_upd`)
+                VALUES ("' . pSQL($imagen) . '", NOW(), NOW())';
+
+        if (!Db::getInstance()->execute($sql)) {
+            return $this->displayError($this->l('Error al añadir el principal'));
         }
 
-        $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'escandallo_principal` 
-                (`nombre`, `imagen`, `date_add`, `date_upd`) 
-                VALUES ("' . pSQL($nombre) . '", "' . pSQL($imagen) . '", NOW(), NOW())';
+        // 2. Obtener ID insertado
+        $id_principal = (int)Db::getInstance()->Insert_ID();
 
-        if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Principal añadido correctamente'));
+        // 3. Insertar nombres en todas las lenguas
+        foreach ($nombres as $id_lang => $nombre) {
+            Db::getInstance()->insert('escandallo_principal_lang', [
+                'id_principal' => $id_principal,
+                'id_lang' => (int)$id_lang,
+                'nombre' => pSQL($nombre)
+            ]);
         }
 
-        return $this->displayError($this->l('Error al añadir el principal'));
+        return $this->displayConfirmation($this->l('Principal añadido correctamente'));
     }
 
     private function processAddParte()
     {
         $id_principal = (int)Tools::getValue('id_principal_parte');
-        $nombre = Tools::getValue('nombre_parte');
-        $imagen = $this->uploadImage('imagen_parte', 'partes');
+        $nombres = []; // Array de nombres por idioma
+        $languages = Language::getLanguages(false);
 
-        if (empty($nombre) || $id_principal <= 0) {
+        // Recoger nombres de todos los idiomas
+        foreach ($languages as $lang) {
+            $nombre = Tools::getValue('nombre_parte_' . $lang['id_lang']);
+            if (!empty($nombre)) {
+                $nombres[$lang['id_lang']] = $nombre;
+            }
+        }
+
+        if (empty($nombres) || $id_principal <= 0) {
             return $this->displayError($this->l('Todos los campos son obligatorios'));
         }
 
-        $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'escandallo_parte` 
-                (`id_principal`, `nombre`, `imagen`, `date_add`, `date_upd`) 
-                VALUES (' . $id_principal . ', "' . pSQL($nombre) . '", "' . pSQL($imagen) . '", NOW(), NOW())';
+        $imagen = $this->uploadImage('imagen_parte', 'partes');
 
-        if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Parte a�adida correctamente'));
+        // 1. Insertar en tabla parte (sin nombre)
+        $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'escandallo_parte`
+                (`id_principal`, `imagen`, `date_add`, `date_upd`)
+                VALUES (' . $id_principal . ', "' . pSQL($imagen) . '", NOW(), NOW())';
+
+        if (!Db::getInstance()->execute($sql)) {
+            return $this->displayError($this->l('Error al añadir la parte'));
         }
 
-        return $this->displayError($this->l('Error al añadir la parte'));
+        // 2. Obtener ID insertado
+        $id_parte = (int)Db::getInstance()->Insert_ID();
+
+        // 3. Insertar nombres en todas las lenguas
+        foreach ($nombres as $id_lang => $nombre) {
+            Db::getInstance()->insert('escandallo_parte_lang', [
+                'id_parte' => $id_parte,
+                'id_lang' => (int)$id_lang,
+                'nombre' => pSQL($nombre)
+            ]);
+        }
+
+        return $this->displayConfirmation($this->l('Parte añadida correctamente'));
     }
 
     private function processAddProductoParte()
@@ -1042,27 +1105,41 @@ private function renderConfigForm()
 
     public function getPrincipales()
     {
+        $id_lang = (int)$this->context->language->id;
         return Db::getInstance()->executeS(
-            'SELECT * FROM `' . _DB_PREFIX_ . 'escandallo_principal` ORDER BY position ASC, nombre ASC'
+            'SELECT p.*, pl.nombre
+            FROM `' . _DB_PREFIX_ . 'escandallo_principal` p
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` pl
+                ON (p.id_principal = pl.id_principal AND pl.id_lang = ' . $id_lang . ')
+            ORDER BY p.position ASC, pl.nombre ASC'
         );
     }
 
     public function getPartesByPrincipal($id_principal)
     {
+        $id_lang = (int)$this->context->language->id;
         return Db::getInstance()->executeS(
-            'SELECT * FROM `' . _DB_PREFIX_ . 'escandallo_parte` 
-            WHERE id_principal = ' . (int)$id_principal . ' 
-            ORDER BY position ASC, nombre ASC'
+            'SELECT p.*, pl.nombre
+            FROM `' . _DB_PREFIX_ . 'escandallo_parte` p
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` pl
+                ON (p.id_parte = pl.id_parte AND pl.id_lang = ' . $id_lang . ')
+            WHERE p.id_principal = ' . (int)$id_principal . '
+            ORDER BY p.position ASC, pl.nombre ASC'
         );
     }
 
     public function getAllPartes()
     {
+        $id_lang = (int)$this->context->language->id;
         return Db::getInstance()->executeS(
-            'SELECT p.*, pr.nombre as nombre_principal 
+            'SELECT p.*, pl.nombre, prl.nombre as nombre_principal
             FROM `' . _DB_PREFIX_ . 'escandallo_parte` p
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` pl
+                ON (p.id_parte = pl.id_parte AND pl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal` pr ON p.id_principal = pr.id_principal
-            ORDER BY pr.nombre ASC, p.nombre ASC'
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` prl
+                ON (pr.id_principal = prl.id_principal AND prl.id_lang = ' . $id_lang . ')
+            ORDER BY prl.nombre ASC, pl.nombre ASC'
         );
     }
 
@@ -1081,30 +1158,45 @@ private function renderConfigForm()
 
     public function getAllProductosPartes()
     {
+        $id_lang = (int)$this->context->language->id;
         return Db::getInstance()->executeS(
-            'SELECT pp.*, p.reference, pl.name, pt.nombre as nombre_parte, pr.nombre as nombre_principal
+            'SELECT pp.*, p.reference, pl.name, ptl.nombre as nombre_parte, prl.nombre as nombre_principal
             FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` pp
             LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
-            LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . (int)$this->context->language->id . ')
+            LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` pt ON pp.id_parte = pt.id_parte
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` ptl
+                ON (pt.id_parte = ptl.id_parte AND ptl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal` pr ON pt.id_principal = pr.id_principal
-            ORDER BY pr.nombre ASC, pt.nombre ASC, pp.numero_imagen ASC'
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` prl
+                ON (pr.id_principal = prl.id_principal AND prl.id_lang = ' . $id_lang . ')
+            ORDER BY prl.nombre ASC, ptl.nombre ASC, pp.numero_imagen ASC'
         );
     }
 
     public function getPrincipalById($id_principal)
     {
+        $id_lang = (int)$this->context->language->id;
         return Db::getInstance()->getRow(
-            'SELECT * FROM `' . _DB_PREFIX_ . 'escandallo_principal` WHERE id_principal = ' . (int)$id_principal
+            'SELECT p.*, pl.nombre
+            FROM `' . _DB_PREFIX_ . 'escandallo_principal` p
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` pl
+                ON (p.id_principal = pl.id_principal AND pl.id_lang = ' . $id_lang . ')
+            WHERE p.id_principal = ' . (int)$id_principal
         );
     }
 
     public function getParteById($id_parte)
     {
+        $id_lang = (int)$this->context->language->id;
         return Db::getInstance()->getRow(
-            'SELECT p.*, pr.nombre as nombre_principal 
+            'SELECT p.*, pl.nombre, prl.nombre as nombre_principal
             FROM `' . _DB_PREFIX_ . 'escandallo_parte` p
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` pl
+                ON (p.id_parte = pl.id_parte AND pl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal` pr ON p.id_principal = pr.id_principal
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` prl
+                ON (pr.id_principal = prl.id_principal AND prl.id_lang = ' . $id_lang . ')
             WHERE p.id_parte = ' . (int)$id_parte
         );
     }
@@ -1112,17 +1204,22 @@ private function renderConfigForm()
     public function buscarProductos($query)
     {
         $query = pSQL($query);
-        
+        $id_lang = (int)$this->context->language->id;
+
         return Db::getInstance()->executeS(
-            'SELECT DISTINCT pp.*, p.reference, pl.name, pt.nombre as nombre_parte, 
-                    pr.nombre as nombre_principal, pr.id_principal, pt.id_parte
+            'SELECT DISTINCT pp.*, p.reference, pl.name, ptl.nombre as nombre_parte,
+                    prl.nombre as nombre_principal, pr.id_principal, pt.id_parte
             FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` pp
             LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
-            LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . (int)$this->context->language->id . ')
+            LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` pt ON pp.id_parte = pt.id_parte
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` ptl
+                ON (pt.id_parte = ptl.id_parte AND ptl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal` pr ON pt.id_principal = pr.id_principal
+            LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` prl
+                ON (pr.id_principal = prl.id_principal AND prl.id_lang = ' . $id_lang . ')
             WHERE p.reference LIKE "%' . $query . '%" OR pl.name LIKE "%' . $query . '%"
-            ORDER BY pr.nombre ASC, pt.nombre ASC'
+            ORDER BY prl.nombre ASC, ptl.nombre ASC'
         );
     }
 
