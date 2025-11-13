@@ -74,53 +74,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ===================================
-    // ZOOM EN IMAGEN DE DIAGRAMA (OPCIONAL)
+    // POPUP EN IMAGEN DE DIAGRAMA
     // ===================================
-    
+
     const diagramImage = document.querySelector('.escandallo-diagram-image');
-    
+
     if (diagramImage) {
-        diagramImage.style.cursor = 'zoom-in';
-        
         diagramImage.addEventListener('click', function() {
-            // Crear overlay para zoom
+            const imagenUrl = this.src;
+            const nombre = this.alt;
+
+            // Crear overlay con modal
             const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.9);
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: zoom-out;
+            overlay.className = 'escandallo-image-modal';
+            overlay.innerHTML = `
+                <div class="escandallo-modal-overlay"></div>
+                <div class="escandallo-modal-content">
+                    <button class="escandallo-modal-close">
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <div class="escandallo-modal-header">
+                        <h3>${nombre}</h3>
+                        <p>Diagrama Técnico</p>
+                    </div>
+                    <div class="escandallo-modal-body">
+                        <img src="${imagenUrl}" alt="${nombre}">
+                    </div>
+                </div>
             `;
-            
-            const zoomedImage = document.createElement('img');
-            zoomedImage.src = this.src;
-            zoomedImage.style.cssText = `
-                max-width: 95%;
-                max-height: 95%;
-                object-fit: contain;
-            `;
-            
-            overlay.appendChild(zoomedImage);
+
             document.body.appendChild(overlay);
-            
-            // Cerrar al hacer clic
-            overlay.addEventListener('click', function() {
+
+            // Cerrar al hacer clic en el botón de cerrar
+            const btnCerrar = overlay.querySelector('.escandallo-modal-close');
+            btnCerrar.addEventListener('click', function() {
                 document.body.removeChild(overlay);
             });
-            
+
+            // Cerrar al hacer clic fuera del contenido
+            const modalOverlay = overlay.querySelector('.escandallo-modal-overlay');
+            modalOverlay.addEventListener('click', function() {
+                document.body.removeChild(overlay);
+            });
+
             // Cerrar con ESC
-            document.addEventListener('keydown', function(e) {
+            const handleEsc = function(e) {
                 if (e.key === 'Escape' && document.body.contains(overlay)) {
                     document.body.removeChild(overlay);
+                    document.removeEventListener('keydown', handleEsc);
                 }
-            });
+            };
+            document.addEventListener('keydown', handleEsc);
         });
     }
     

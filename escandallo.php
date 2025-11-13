@@ -239,6 +239,11 @@ class Escandallo extends Module
             $output .= $this->processImportCSV();
         }
 
+        if (Tools::isSubmit('submitExportCSV')) {
+            $this->processExportCSV();
+            exit;
+        }
+
         // Acciones de eliminar
         if (Tools::isSubmit('deletePrincipal')) {
             $output .= $this->deletePrincipal(Tools::getValue('id_principal'));
@@ -564,10 +569,71 @@ class Escandallo extends Module
                         }
                     }
                 } elseif ($product_exists) {
-                    // Producto existe, solo asociar
+                    // Producto existe, ACTUALIZAR con datos del CSV
                     $product = new Product($id_product);
+                    $product->reference = $referencia;
+                    $product->name = [$this->context->language->id => $nombre_producto];
+                    $product->description = [$this->context->language->id => $descripcion];
+                    $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
+                    $product->price = $precio;
                     $product->visibility = 'none';
+                    $product->active = 1;
+                    $product->id_category_default = $id_category;
+                    $product->id_tax_rules_group = $id_tax_rules_group > 0 ? $id_tax_rules_group : 1;
+
                     $product->save();
+
+                    // Actualizar categorías
+                    $product->updateCategories([$id_category]);
+
+                    // Actualizar stock
+                    StockAvailable::setQuantity($product->id, 0, $stock);
+
+                    // Actualizar imagen si existe
+                    if (!empty($imagen_producto)) {
+                        $image_path = dirname(__FILE__) . '/views/img/productos/' . $imagen_producto;
+                        if (file_exists($image_path)) {
+                            // Eliminar imágenes anteriores
+                            $images = $product->getImages($this->context->language->id);
+                            foreach ($images as $img) {
+                                $image_obj = new Image($img['id_image']);
+                                $image_obj->delete();
+                            }
+
+                            // Añadir nueva imagen
+                            $image = new Image();
+                            $image->id_product = $product->id;
+                            $image->position = 1;
+                            $image->cover = true;
+
+                            if ($image->add()) {
+                                $image->associateTo($this->context->shop->id);
+
+                                $new_path = $image->getPathForCreation();
+                                $imageInfo = @getimagesize($image_path);
+                                $imageType = $imageInfo ? $imageInfo[2] : IMAGETYPE_JPEG;
+
+                                $ext = '.jpg';
+                                if ($imageType === IMAGETYPE_PNG) {
+                                    $ext = '.png';
+                                } elseif ($imageType === IMAGETYPE_GIF) {
+                                    $ext = '.gif';
+                                }
+
+                                if (copy($image_path, $new_path . $ext)) {
+                                    $imagesTypes = ImageType::getImagesTypes('products');
+                                    foreach ($imagesTypes as $imageType) {
+                                        ImageManager::resize(
+                                            $image_path,
+                                            $new_path . '-' . stripslashes($imageType['name']) . $ext,
+                                            $imageType['width'],
+                                            $imageType['height']
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Asociar producto a parte
@@ -596,6 +662,109 @@ class Escandallo extends Module
         return $this->displayConfirmation(
             sprintf($this->l('Importación completada: %d registros importados, %d errores'), $imported, $errors)
         );
+    }
+
+    private function processExportCSV()
+    {
+        // Obtener todos los datos
+        $sql = 'SELECT
+                    ep.id_principal,
+                    ep.nombre as nombre_principal,
+                    ep.imagen as imagen_principal,
+                    epa.id_parte,
+                    epa.nombre as nombre_parte,
+                    epa.imagen as imagen_parte,
+                    epp.id_product,
+                    epp.numero_imagen,
+                    p.reference,
+                    pl.name as nombre_producto,
+                    pl.description,
+                    p.price,
+                    p.id_category_default,
+                    p.id_tax_rules_group
+                FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_parte = epp.id_parte
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal` ep ON ep.id_principal = epa.id_principal
+                LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
+                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . (int)$this->context->language->id . '
+                ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
+
+        $results = Db::getInstance()->executeS($sql);
+
+        if (!$results) {
+            header('Content-Type: text/html; charset=utf-8');
+            echo $this->displayError($this->l('No hay datos para exportar'));
+            return;
+        }
+
+        // Nombre del archivo
+        $filename = 'escandallo_export_' . date('Y-m-d_H-i-s') . '.csv';
+
+        // Headers para descarga
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // Abrir output
+        $output = fopen('php://output', 'w');
+
+        // BOM para UTF-8
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        // Cabecera
+        fputcsv($output, [
+            'id_principal',
+            'nombre_principal',
+            'imagen_principal',
+            'id_parte',
+            'nombre_parte',
+            'imagen_parte',
+            'id_product',
+            'numero_imagen',
+            'referencia',
+            'nombre_producto',
+            'descripcion',
+            'precio',
+            'imagen_producto',
+            'stock',
+            'id_categoria',
+            'id_tax_rules_group'
+        ], ';');
+
+        // Datos
+        foreach ($results as $row) {
+            // Obtener stock
+            $stock = StockAvailable::getQuantityAvailableByProduct($row['id_product'], 0);
+
+            // Obtener imagen del producto
+            $images = Image::getImages($this->context->language->id, $row['id_product']);
+            $imagen_producto = '';
+            if (!empty($images) && isset($images[0])) {
+                $imagen_producto = $images[0]['id_image'] . '.jpg';
+            }
+
+            fputcsv($output, [
+                $row['id_principal'],
+                $row['nombre_principal'],
+                $row['imagen_principal'] ?: '',
+                $row['id_parte'],
+                $row['nombre_parte'],
+                $row['imagen_parte'] ?: '',
+                $row['id_product'],
+                $row['numero_imagen'],
+                $row['reference'],
+                $row['nombre_producto'],
+                strip_tags($row['description']),
+                $row['price'],
+                $imagen_producto,
+                $stock,
+                $row['id_category_default'],
+                $row['id_tax_rules_group']
+            ], ';');
+        }
+
+        fclose($output);
     }
 
     private function deletePrincipal($id_principal)

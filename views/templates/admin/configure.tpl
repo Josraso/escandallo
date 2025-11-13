@@ -468,12 +468,37 @@
 
             <!-- TAB: Importar CSV -->
             <div class="tab-pane" id="tab-import">
-                <h3>{l s='Importación Masiva CSV' mod='escandallo'}</h3>
+                <h3>{l s='Importación y Exportación CSV' mod='escandallo'}</h3>
 
+                <!-- Exportar CSV -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <i class="icon-download"></i>
+                        {l s='Exportar Configuración a CSV' mod='escandallo'}
+                    </div>
+                    <div class="panel-body">
+                        <p>{l s='Exporta toda la configuración actual del módulo a un archivo CSV compatible con Excel.' mod='escandallo'}</p>
+                        <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" class="form-horizontal">
+                            <div class="alert alert-info">
+                                <i class="icon-info-circle"></i> {l s='El archivo exportado incluirá: principales, partes, productos, referencias, precios, stock, categorías e impuestos.' mod='escandallo'}
+                                <br><strong>{l s='Nota:' mod='escandallo'}</strong> {l s='Las imágenes NO se descargan automáticamente. Debes copiar manualmente las carpetas de imágenes si quieres hacer backup completo.' mod='escandallo'}
+                            </div>
+
+                            <div class="panel-footer">
+                                <button type="submit" name="submitExportCSV" class="btn btn-success pull-right">
+                                    <i class="icon-download"></i>
+                                    {l s='Exportar a CSV' mod='escandallo'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Importar CSV -->
                 <div class="panel">
                     <div class="panel-heading">
                         <i class="icon-upload"></i>
-                        {l s='Subir Archivo CSV' mod='escandallo'}
+                        {l s='Importar desde CSV' mod='escandallo'}
                     </div>
                     <div class="panel-body">
                         <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" enctype="multipart/form-data" class="form-horizontal">
