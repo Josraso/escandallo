@@ -472,83 +472,158 @@ class Escandallo extends Module
             $id_tax_rules_group = (int)$data[15];
 
             try {
-                // Crear o actualizar principal
-                $principal_exists = Db::getInstance()->getValue(
-                    'SELECT id_principal FROM `' . _DB_PREFIX_ . 'escandallo_principal` WHERE id_principal = ' . $id_principal
-                );
+                // VALIDACIÓN: Solo crear principal si tiene datos válidos
+                if ($id_principal > 0 && !empty(trim($nombre_principal))) {
+                    $principal_exists = Db::getInstance()->getValue(
+                        'SELECT id_principal FROM `' . _DB_PREFIX_ . 'escandallo_principal` WHERE id_principal = ' . $id_principal
+                    );
 
-                if (!$principal_exists) {
-                    Db::getInstance()->insert('escandallo_principal', [
-                        'id_principal' => $id_principal,
-                        'nombre' => pSQL($nombre_principal),
-                        'imagen' => pSQL($imagen_principal),
-                        'date_add' => date('Y-m-d H:i:s'),
-                        'date_upd' => date('Y-m-d H:i:s')
-                    ]);
+                    if (!$principal_exists) {
+                        Db::getInstance()->insert('escandallo_principal', [
+                            'id_principal' => $id_principal,
+                            'nombre' => pSQL($nombre_principal),
+                            'imagen' => pSQL($imagen_principal),
+                            'date_add' => date('Y-m-d H:i:s'),
+                            'date_upd' => date('Y-m-d H:i:s')
+                        ]);
+                    }
                 }
 
-                // Crear o actualizar parte
-                $parte_exists = Db::getInstance()->getValue(
-                    'SELECT id_parte FROM `' . _DB_PREFIX_ . 'escandallo_parte` WHERE id_parte = ' . $id_parte
-                );
+                // VALIDACIÓN: Solo crear parte si tiene datos válidos
+                if ($id_parte > 0 && !empty(trim($nombre_parte)) && $id_principal > 0) {
+                    $parte_exists = Db::getInstance()->getValue(
+                        'SELECT id_parte FROM `' . _DB_PREFIX_ . 'escandallo_parte` WHERE id_parte = ' . $id_parte
+                    );
 
-                if (!$parte_exists) {
-                    Db::getInstance()->insert('escandallo_parte', [
-                        'id_parte' => $id_parte,
-                        'id_principal' => $id_principal,
-                        'nombre' => pSQL($nombre_parte),
-                        'imagen' => pSQL($imagen_parte),
-                        'date_add' => date('Y-m-d H:i:s'),
-                        'date_upd' => date('Y-m-d H:i:s')
-                    ]);
+                    if (!$parte_exists) {
+                        Db::getInstance()->insert('escandallo_parte', [
+                            'id_parte' => $id_parte,
+                            'id_principal' => $id_principal,
+                            'nombre' => pSQL($nombre_parte),
+                            'imagen' => pSQL($imagen_parte),
+                            'date_add' => date('Y-m-d H:i:s'),
+                            'date_upd' => date('Y-m-d H:i:s')
+                        ]);
+                    }
                 }
 
-                // Crear o actualizar producto
-                $product_exists = Db::getInstance()->getValue(
-                    'SELECT id_product FROM `' . _DB_PREFIX_ . 'product` WHERE id_product = ' . $id_product
-                );
+                // VALIDACIÓN: Solo procesar producto si tiene datos válidos
+                if ($id_product > 0 && !empty(trim($nombre_producto)) && !empty(trim($referencia))) {
+                    // Crear o actualizar producto
+                    $product_exists = Db::getInstance()->getValue(
+                        'SELECT id_product FROM `' . _DB_PREFIX_ . 'product` WHERE id_product = ' . $id_product
+                    );
 
-                if (!$product_exists && $id_product > 0) {
-                    // Crear producto nuevo
-                    $product = new Product();
-                    $product->id_product = $id_product;
-                    $product->reference = $referencia;
-                    $product->name = [$this->context->language->id => $nombre_producto];
-                    $product->description = [$this->context->language->id => $descripcion];
-                    $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
-                    $product->price = $precio;
-                    $product->visibility = 'none';
-                    $product->active = 1;
-                    $product->id_category_default = $id_category;
-                    $product->id_tax_rules_group = $id_tax_rules_group > 0 ? $id_tax_rules_group : 1;
+                    if (!$product_exists) {
+                        // Crear producto nuevo
+                        $product = new Product();
+                        $product->id_product = $id_product;
+                        $product->reference = $referencia;
+                        $product->name = [$this->context->language->id => $nombre_producto];
+                        $product->description = [$this->context->language->id => $descripcion];
+                        $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
+                        $product->price = $precio;
+                        $product->visibility = 'none';
+                        $product->active = 1;
+                        $product->id_category_default = $id_category;
+                        $product->id_tax_rules_group = $id_tax_rules_group > 0 ? $id_tax_rules_group : 1;
 
-                    if ($product->add()) {
-                        // Añadir a categoría CORRECTAMENTE
+                        if ($product->add()) {
+                            // Añadir a categoría CORRECTAMENTE
+                            $product->updateCategories([$id_category]);
+
+                            // Actualizar stock
+                            StockAvailable::setQuantity($product->id, 0, $stock);
+
+                            // Subir imagen si existe
+                            if (!empty($imagen_producto)) {
+                                $image_path = dirname(__FILE__) . '/views/img/productos/' . $imagen_producto;
+                                if (file_exists($image_path)) {
+                                    $image = new Image();
+                                    $image->id_product = $product->id;
+                                    $image->position = Image::getHighestPosition($product->id) + 1;
+                                    $image->cover = true;
+
+                                    if ($image->add()) {
+                                        $image->associateTo($this->context->shop->id);
+
+                                        // Copiar imagen a PrestaShop correctamente
+                                        $new_path = $image->getPathForCreation();
+
+                                        // Detectar tipo de imagen
+                                        $imageInfo = @getimagesize($image_path);
+                                        $imageType = $imageInfo ? $imageInfo[2] : IMAGETYPE_JPEG;
+
+                                        // Extensión según tipo
+                                        $ext = '.jpg';
+                                        if ($imageType === IMAGETYPE_PNG) {
+                                            $ext = '.png';
+                                        } elseif ($imageType === IMAGETYPE_GIF) {
+                                            $ext = '.gif';
+                                        }
+
+                                        // Copiar imagen original
+                                        if (copy($image_path, $new_path . $ext)) {
+                                            // Generar todas las miniaturas
+                                            $imagesTypes = ImageType::getImagesTypes('products');
+                                            foreach ($imagesTypes as $imageType) {
+                                                ImageManager::resize(
+                                                    $image_path,
+                                                    $new_path . '-' . stripslashes($imageType['name']) . $ext,
+                                                    $imageType['width'],
+                                                    $imageType['height']
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Producto existe, ACTUALIZAR con datos del CSV
+                        $product = new Product($id_product);
+                        $product->reference = $referencia;
+                        $product->name = [$this->context->language->id => $nombre_producto];
+                        $product->description = [$this->context->language->id => $descripcion];
+                        $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
+                        $product->price = $precio;
+                        $product->visibility = 'none';
+                        $product->active = 1;
+                        $product->id_category_default = $id_category;
+                        $product->id_tax_rules_group = $id_tax_rules_group > 0 ? $id_tax_rules_group : 1;
+
+                        $product->save();
+
+                        // Actualizar categorías
                         $product->updateCategories([$id_category]);
 
                         // Actualizar stock
                         StockAvailable::setQuantity($product->id, 0, $stock);
 
-                        // Subir imagen si existe
+                        // Actualizar imagen si existe
                         if (!empty($imagen_producto)) {
                             $image_path = dirname(__FILE__) . '/views/img/productos/' . $imagen_producto;
                             if (file_exists($image_path)) {
+                                // Eliminar imágenes anteriores
+                                $images = $product->getImages($this->context->language->id);
+                                foreach ($images as $img) {
+                                    $image_obj = new Image($img['id_image']);
+                                    $image_obj->delete();
+                                }
+
+                                // Añadir nueva imagen
                                 $image = new Image();
                                 $image->id_product = $product->id;
-                                $image->position = Image::getHighestPosition($product->id) + 1;
+                                $image->position = 1;
                                 $image->cover = true;
 
                                 if ($image->add()) {
                                     $image->associateTo($this->context->shop->id);
 
-                                    // Copiar imagen a PrestaShop correctamente
                                     $new_path = $image->getPathForCreation();
-
-                                    // Detectar tipo de imagen
                                     $imageInfo = @getimagesize($image_path);
                                     $imageType = $imageInfo ? $imageInfo[2] : IMAGETYPE_JPEG;
 
-                                    // Extensión según tipo
                                     $ext = '.jpg';
                                     if ($imageType === IMAGETYPE_PNG) {
                                         $ext = '.png';
@@ -556,9 +631,7 @@ class Escandallo extends Module
                                         $ext = '.gif';
                                     }
 
-                                    // Copiar imagen original
                                     if (copy($image_path, $new_path . $ext)) {
-                                        // Generar todas las miniaturas
                                         $imagesTypes = ImageType::getImagesTypes('products');
                                         foreach ($imagesTypes as $imageType) {
                                             ImageManager::resize(
@@ -573,87 +646,23 @@ class Escandallo extends Module
                             }
                         }
                     }
-                } elseif ($product_exists) {
-                    // Producto existe, ACTUALIZAR con datos del CSV
-                    $product = new Product($id_product);
-                    $product->reference = $referencia;
-                    $product->name = [$this->context->language->id => $nombre_producto];
-                    $product->description = [$this->context->language->id => $descripcion];
-                    $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
-                    $product->price = $precio;
-                    $product->visibility = 'none';
-                    $product->active = 1;
-                    $product->id_category_default = $id_category;
-                    $product->id_tax_rules_group = $id_tax_rules_group > 0 ? $id_tax_rules_group : 1;
-
-                    $product->save();
-
-                    // Actualizar categorías
-                    $product->updateCategories([$id_category]);
-
-                    // Actualizar stock
-                    StockAvailable::setQuantity($product->id, 0, $stock);
-
-                    // Actualizar imagen si existe
-                    if (!empty($imagen_producto)) {
-                        $image_path = dirname(__FILE__) . '/views/img/productos/' . $imagen_producto;
-                        if (file_exists($image_path)) {
-                            // Eliminar imágenes anteriores
-                            $images = $product->getImages($this->context->language->id);
-                            foreach ($images as $img) {
-                                $image_obj = new Image($img['id_image']);
-                                $image_obj->delete();
-                            }
-
-                            // Añadir nueva imagen
-                            $image = new Image();
-                            $image->id_product = $product->id;
-                            $image->position = 1;
-                            $image->cover = true;
-
-                            if ($image->add()) {
-                                $image->associateTo($this->context->shop->id);
-
-                                $new_path = $image->getPathForCreation();
-                                $imageInfo = @getimagesize($image_path);
-                                $imageType = $imageInfo ? $imageInfo[2] : IMAGETYPE_JPEG;
-
-                                $ext = '.jpg';
-                                if ($imageType === IMAGETYPE_PNG) {
-                                    $ext = '.png';
-                                } elseif ($imageType === IMAGETYPE_GIF) {
-                                    $ext = '.gif';
-                                }
-
-                                if (copy($image_path, $new_path . $ext)) {
-                                    $imagesTypes = ImageType::getImagesTypes('products');
-                                    foreach ($imagesTypes as $imageType) {
-                                        ImageManager::resize(
-                                            $image_path,
-                                            $new_path . '-' . stripslashes($imageType['name']) . $ext,
-                                            $imageType['width'],
-                                            $imageType['height']
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
 
-                // Asociar producto a parte
-                $asociacion_exists = Db::getInstance()->getValue(
-                    'SELECT id_escandallo_producto FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` 
-                    WHERE id_parte = ' . $id_parte . ' AND id_product = ' . $id_product
-                );
+                // VALIDACIÓN: Solo asociar producto a parte si AMBOS existen
+                if ($id_parte > 0 && $id_product > 0) {
+                    $asociacion_exists = Db::getInstance()->getValue(
+                        'SELECT id_escandallo_producto FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte`
+                        WHERE id_parte = ' . $id_parte . ' AND id_product = ' . $id_product
+                    );
 
-                if (!$asociacion_exists) {
-                    Db::getInstance()->insert('escandallo_producto_parte', [
-                        'id_parte' => $id_parte,
-                        'id_product' => $id_product,
-                        'numero_imagen' => $numero_imagen,
-                        'date_add' => date('Y-m-d H:i:s')
-                    ]);
+                    if (!$asociacion_exists) {
+                        Db::getInstance()->insert('escandallo_producto_parte', [
+                            'id_parte' => $id_parte,
+                            'id_product' => $id_product,
+                            'numero_imagen' => $numero_imagen,
+                            'date_add' => date('Y-m-d H:i:s')
+                        ]);
+                    }
                 }
 
                 $imported++;
