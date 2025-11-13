@@ -470,24 +470,48 @@
             <div class="tab-pane" id="tab-import">
                 <h3>{l s='Importación y Exportación CSV' mod='escandallo'}</h3>
 
-                <!-- Exportar CSV -->
+                <!-- Exportar ZIP Completo -->
                 <div class="panel">
-                    <div class="panel-heading">
-                        <i class="icon-download"></i>
-                        {l s='Exportar Configuración a CSV' mod='escandallo'}
+                    <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <i class="icon-archive"></i>
+                        {l s='Exportar BACKUP COMPLETO (ZIP)' mod='escandallo'}
                     </div>
                     <div class="panel-body">
-                        <p>{l s='Exporta toda la configuración actual del módulo a un archivo CSV compatible con Excel.' mod='escandallo'}</p>
+                        <p><strong>{l s='Descarga TODO: CSV + Imágenes en un solo archivo ZIP' mod='escandallo'}</strong></p>
                         <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" class="form-horizontal">
-                            <div class="alert alert-info">
-                                <i class="icon-info-circle"></i> {l s='El archivo exportado incluirá: principales, partes, productos, referencias, precios, stock, categorías e impuestos.' mod='escandallo'}
-                                <br><strong>{l s='Nota:' mod='escandallo'}</strong> {l s='Las imágenes NO se descargan automáticamente. Debes copiar manualmente las carpetas de imágenes si quieres hacer backup completo.' mod='escandallo'}
+                            <div class="alert alert-success">
+                                <i class="icon-check"></i> <strong>{l s='Incluye:' mod='escandallo'}</strong>
+                                <ul style="margin-top: 10px; margin-bottom: 0;">
+                                    <li>{l s='Archivo CSV con toda la configuración' mod='escandallo'}</li>
+                                    <li>{l s='Carpeta imagenes/principales/ con todas las imágenes' mod='escandallo'}</li>
+                                    <li>{l s='Carpeta imagenes/partes/ con todas las imágenes' mod='escandallo'}</li>
+                                    <li>{l s='Carpeta imagenes/productos/ con todas las imágenes' mod='escandallo'}</li>
+                                </ul>
                             </div>
 
                             <div class="panel-footer">
-                                <button type="submit" name="submitExportCSV" class="btn btn-success pull-right">
+                                <button type="submit" name="submitExportZIP" class="btn btn-primary pull-right" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                                    <i class="icon-archive"></i>
+                                    {l s='Descargar Backup Completo ZIP' mod='escandallo'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Exportar solo CSV -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <i class="icon-download"></i>
+                        {l s='Exportar solo CSV (sin imágenes)' mod='escandallo'}
+                    </div>
+                    <div class="panel-body">
+                        <p>{l s='Exporta únicamente el archivo CSV con la configuración. Las imágenes NO se incluyen.' mod='escandallo'}</p>
+                        <form action="{$smarty.server.REQUEST_URI|escape:'html':'UTF-8'}" method="post" class="form-horizontal">
+                            <div class="panel-footer">
+                                <button type="submit" name="submitExportCSV" class="btn btn-default pull-right">
                                     <i class="icon-download"></i>
-                                    {l s='Exportar a CSV' mod='escandallo'}
+                                    {l s='Exportar solo CSV' mod='escandallo'}
                                 </button>
                             </div>
                         </form>

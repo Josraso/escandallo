@@ -244,6 +244,11 @@ class Escandallo extends Module
             exit;
         }
 
+        if (Tools::isSubmit('submitExportZIP')) {
+            $this->processExportZIP();
+            exit;
+        }
+
         // Acciones de eliminar
         if (Tools::isSubmit('deletePrincipal')) {
             $output .= $this->deletePrincipal(Tools::getValue('id_principal'));
@@ -770,6 +775,143 @@ class Escandallo extends Module
         }
 
         fclose($output);
+    }
+
+    private function processExportZIP()
+    {
+        // Verificar que ZipArchive esté disponible
+        if (!class_exists('ZipArchive')) {
+            header('Content-Type: text/html; charset=utf-8');
+            echo $this->displayError($this->l('ZipArchive no está disponible en el servidor'));
+            return;
+        }
+
+        $zipFilename = 'escandallo_backup_' . date('Y-m-d_H-i-s') . '.zip';
+        $zipPath = sys_get_temp_dir() . '/' . $zipFilename;
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
+            header('Content-Type: text/html; charset=utf-8');
+            echo $this->displayError($this->l('No se pudo crear el archivo ZIP'));
+            return;
+        }
+
+        // 1. Crear CSV en memoria
+        $csvContent = chr(0xEF).chr(0xBB).chr(0xBF); // BOM UTF-8
+
+        // Query para obtener datos
+        $sql = 'SELECT
+                    ep.id_principal,
+                    ep.nombre as nombre_principal,
+                    ep.imagen as imagen_principal,
+                    epa.id_parte,
+                    epa.nombre as nombre_parte,
+                    epa.imagen as imagen_parte,
+                    epp.id_product,
+                    epp.numero_imagen,
+                    p.reference,
+                    pl.name as nombre_producto,
+                    pl.description,
+                    p.price,
+                    p.id_category_default,
+                    p.id_tax_rules_group
+                FROM `' . _DB_PREFIX_ . 'escandallo_principal` ep
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_principal = ep.id_principal
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp ON epp.id_parte = epa.id_parte
+                LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
+                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . (int)$this->context->language->id . '
+                ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
+
+        $results = Db::getInstance()->executeS($sql);
+
+        // Cabecera CSV
+        $header = ['id_principal', 'nombre_principal', 'imagen_principal', 'id_parte', 'nombre_parte', 'imagen_parte',
+                   'id_product', 'numero_imagen', 'referencia', 'nombre_producto', 'descripcion', 'precio',
+                   'imagen_producto', 'stock', 'id_categoria', 'id_tax_rules_group'];
+        $csvContent .= implode(';', $header) . "\n";
+
+        // Datos CSV
+        if ($results) {
+            foreach ($results as $row) {
+                $stock = 0;
+                $imagen_producto = '';
+
+                if ($row['id_product']) {
+                    $stock = StockAvailable::getQuantityAvailableByProduct($row['id_product'], 0);
+                    $images = Image::getImages($this->context->language->id, $row['id_product']);
+                    if (!empty($images) && isset($images[0])) {
+                        $imagen_producto = $images[0]['id_image'] . '.jpg';
+                    }
+                }
+
+                $line = [
+                    $row['id_principal'] ?: '',
+                    '"' . str_replace('"', '""', $row['nombre_principal'] ?: '') . '"',
+                    '"' . str_replace('"', '""', $row['imagen_principal'] ?: '') . '"',
+                    $row['id_parte'] ?: '',
+                    '"' . str_replace('"', '""', $row['nombre_parte'] ?: '') . '"',
+                    '"' . str_replace('"', '""', $row['imagen_parte'] ?: '') . '"',
+                    $row['id_product'] ?: 0,
+                    $row['numero_imagen'] ?: '',
+                    '"' . str_replace('"', '""', $row['reference'] ?: '') . '"',
+                    '"' . str_replace('"', '""', $row['nombre_producto'] ?: '') . '"',
+                    '"' . str_replace('"', '""', strip_tags($row['description'] ?: '')) . '"',
+                    $row['price'] ?: 0,
+                    '"' . str_replace('"', '""', $imagen_producto) . '"',
+                    $stock,
+                    $row['id_category_default'] ?: 0,
+                    $row['id_tax_rules_group'] ?: 1
+                ];
+                $csvContent .= implode(';', $line) . "\n";
+            }
+        }
+
+        // Añadir CSV al ZIP
+        $zip->addFromString('escandallo_export.csv', $csvContent);
+
+        // 2. Añadir carpetas de imágenes
+        $modulePath = dirname(__FILE__);
+
+        // Añadir imágenes de principales
+        $this->addFolderToZip($zip, $modulePath . '/views/img/principales', 'imagenes/principales');
+
+        // Añadir imágenes de partes
+        $this->addFolderToZip($zip, $modulePath . '/views/img/partes', 'imagenes/partes');
+
+        // Añadir imágenes de productos
+        $this->addFolderToZip($zip, $modulePath . '/views/img/productos', 'imagenes/productos');
+
+        $zip->close();
+
+        // Descargar ZIP
+        if (file_exists($zipPath)) {
+            header('Content-Type: application/zip');
+            header('Content-Disposition: attachment; filename="' . $zipFilename . '"');
+            header('Content-Length: ' . filesize($zipPath));
+            header('Pragma: no-cache');
+            header('Expires: 0');
+            readfile($zipPath);
+            unlink($zipPath); // Eliminar archivo temporal
+        }
+    }
+
+    private function addFolderToZip($zip, $folderPath, $zipPath)
+    {
+        if (!is_dir($folderPath)) {
+            return;
+        }
+
+        $files = scandir($folderPath);
+        foreach ($files as $file) {
+            if ($file == '.' || $file == '..' || $file == '.gitkeep') {
+                continue;
+            }
+
+            $filePath = $folderPath . '/' . $file;
+            if (is_file($filePath)) {
+                $zip->addFile($filePath, $zipPath . '/' . $file);
+            }
+        }
     }
 
     private function deletePrincipal($id_principal)
