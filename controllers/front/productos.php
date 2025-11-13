@@ -46,9 +46,19 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
                 );
             }
 
-            // Precio formateado
+            // Precio formateado (compatible PS 1.7/1.8/9)
             $product_obj = new Product($producto['id_product'], false, $this->context->language->id);
-            $producto['precio_formateado'] = Tools::displayPrice($product_obj->getPrice(true));
+            $precio = $product_obj->getPrice(true);
+
+            // PrestaShop 9+ usa currentLocale, versiones anteriores usan Tools::displayPrice
+            if (method_exists($this->context, 'getCurrentLocale')) {
+                $producto['precio_formateado'] = $this->context->getCurrentLocale()->formatPrice(
+                    $precio,
+                    $this->context->currency->iso_code
+                );
+            } else {
+                $producto['precio_formateado'] = Tools::displayPrice($precio);
+            }
             
             // Stock
             $producto['tiene_stock'] = $producto['quantity'] > 0;
