@@ -666,7 +666,7 @@ class Escandallo extends Module
 
     private function processExportCSV()
     {
-        // Obtener todos los datos
+        // Obtener TODOS los datos: principales, partes y productos (con o sin asociaciones)
         $sql = 'SELECT
                     ep.id_principal,
                     ep.nombre as nombre_principal,
@@ -682,16 +682,16 @@ class Escandallo extends Module
                     p.price,
                     p.id_category_default,
                     p.id_tax_rules_group
-                FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp
-                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_parte = epp.id_parte
-                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal` ep ON ep.id_principal = epa.id_principal
+                FROM `' . _DB_PREFIX_ . 'escandallo_principal` ep
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_principal = ep.id_principal
+                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp ON epp.id_parte = epa.id_parte
                 LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
                 LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . (int)$this->context->language->id . '
                 ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
 
         $results = Db::getInstance()->executeS($sql);
 
-        if (!$results) {
+        if (!$results || count($results) == 0) {
             header('Content-Type: text/html; charset=utf-8');
             echo $this->displayError($this->l('No hay datos para exportar'));
             return;
@@ -734,33 +734,38 @@ class Escandallo extends Module
 
         // Datos
         foreach ($results as $row) {
-            // Obtener stock
-            $stock = StockAvailable::getQuantityAvailableByProduct($row['id_product'], 0);
-
-            // Obtener imagen del producto
-            $images = Image::getImages($this->context->language->id, $row['id_product']);
+            // Si no hay producto asociado, poner valores vacíos
+            $stock = 0;
             $imagen_producto = '';
-            if (!empty($images) && isset($images[0])) {
-                $imagen_producto = $images[0]['id_image'] . '.jpg';
+
+            if ($row['id_product']) {
+                // Obtener stock solo si hay producto
+                $stock = StockAvailable::getQuantityAvailableByProduct($row['id_product'], 0);
+
+                // Obtener imagen del producto
+                $images = Image::getImages($this->context->language->id, $row['id_product']);
+                if (!empty($images) && isset($images[0])) {
+                    $imagen_producto = $images[0]['id_image'] . '.jpg';
+                }
             }
 
             fputcsv($output, [
-                $row['id_principal'],
-                $row['nombre_principal'],
+                $row['id_principal'] ?: '',
+                $row['nombre_principal'] ?: '',
                 $row['imagen_principal'] ?: '',
-                $row['id_parte'],
-                $row['nombre_parte'],
+                $row['id_parte'] ?: '',
+                $row['nombre_parte'] ?: '',
                 $row['imagen_parte'] ?: '',
-                $row['id_product'],
-                $row['numero_imagen'],
-                $row['reference'],
-                $row['nombre_producto'],
-                strip_tags($row['description']),
-                $row['price'],
+                $row['id_product'] ?: 0,
+                $row['numero_imagen'] ?: '',
+                $row['reference'] ?: '',
+                $row['nombre_producto'] ?: '',
+                $row['description'] ? strip_tags($row['description']) : '',
+                $row['price'] ?: 0,
                 $imagen_producto,
                 $stock,
-                $row['id_category_default'],
-                $row['id_tax_rules_group']
+                $row['id_category_default'] ?: 0,
+                $row['id_tax_rules_group'] ?: 1
             ], ';');
         }
 
