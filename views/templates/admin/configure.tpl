@@ -94,13 +94,42 @@
                                     {l s='Nombre' mod='escandallo'}
                                 </label>
                                 <div class="col-lg-9">
-                                    <input type="text"
-                                           name="nombre_principal"
-                                           class="form-control"
-                                           placeholder="{l s='Ej: Moto Deportiva, Scooter 125cc...' mod='escandallo'}"
-                                           required>
+                                    <!-- Tabs de idiomas -->
+                                    <div class="translatable-field">
+                                        <div class="col-lg-9">
+                                            {foreach $languages as $language}
+                                                <div class="translatable-field lang-{$language.id_lang}" style="display: {if $language.id_lang == $default_language}block{else}none{/if};">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}">
+                                                        </span>
+                                                        <input type="text"
+                                                               name="nombre_principal_{$language.id_lang}"
+                                                               class="form-control"
+                                                               placeholder="{l s='Ej: Moto Deportiva, Scooter 125cc...' mod='escandallo'}"
+                                                               {if $language.id_lang == $default_language}required{/if}>
+                                                    </div>
+                                                </div>
+                                            {/foreach}
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                {l s='Cambiar idioma' mod='escandallo'}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                {foreach $languages as $language}
+                                                    <li>
+                                                        <a href="javascript:showLangField({$language.id_lang}, 'nombre_principal');">
+                                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}"> {$language.name}
+                                                        </a>
+                                                    </li>
+                                                {/foreach}
+                                            </ul>
+                                        </div>
+                                    </div>
                                     <p class="help-block">
-                                        <i class="icon-info-circle"></i> {l s='Nombre del producto principal que contendr\u00e1 varios diagramas' mod='escandallo'}
+                                        <i class="icon-info-circle"></i> {l s='Nombre del producto principal que contendrá varios diagramas' mod='escandallo'}
                                     </p>
                                 </div>
                             </div>
@@ -114,11 +143,11 @@
                                            name="imagen_principal"
                                            accept="image/*">
                                     <p class="help-block">
-                                        <i class="icon-picture-o"></i> {l s='Imagen representativa del producto principal. Formatos: JPG, PNG, GIF (Tama\u00f1o recomendado: 800x600px)' mod='escandallo'}
+                                        <i class="icon-picture-o"></i> {l s='Imagen representativa del producto principal. Formatos: JPG, PNG, GIF (Tamaño recomendado: 800x600px)' mod='escandallo'}
                                     </p>
                                 </div>
                             </div>
-                            
+
                             <div class="panel-footer">
                                 <button type="submit" name="submitAddPrincipal" class="btn btn-default pull-right">
                                     <i class="process-icon-save"></i>
@@ -230,13 +259,42 @@
                                     {l s='Nombre de la Parte' mod='escandallo'}
                                 </label>
                                 <div class="col-lg-9">
-                                    <input type="text"
-                                           name="nombre_parte"
-                                           class="form-control"
-                                           placeholder="{l s='Ej: C\u00fapula, Motor, Suspensi\u00f3n Delantera...' mod='escandallo'}"
-                                           required>
+                                    <!-- Tabs de idiomas -->
+                                    <div class="translatable-field">
+                                        <div class="col-lg-9">
+                                            {foreach $languages as $language}
+                                                <div class="translatable-field lang-{$language.id_lang}" style="display: {if $language.id_lang == $default_language}block{else}none{/if};">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}">
+                                                        </span>
+                                                        <input type="text"
+                                                               name="nombre_parte_{$language.id_lang}"
+                                                               class="form-control"
+                                                               placeholder="{l s='Ej: Cúpula, Motor, Suspensión Delantera...' mod='escandallo'}"
+                                                               {if $language.id_lang == $default_language}required{/if}>
+                                                    </div>
+                                                </div>
+                                            {/foreach}
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                {l s='Cambiar idioma' mod='escandallo'}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                {foreach $languages as $language}
+                                                    <li>
+                                                        <a href="javascript:showLangField({$language.id_lang}, 'nombre_parte');">
+                                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}"> {$language.name}
+                                                        </a>
+                                                    </li>
+                                                {/foreach}
+                                            </ul>
+                                        </div>
+                                    </div>
                                     <p class="help-block">
-                                        <i class="icon-info-circle"></i> {l s='Nombre de la secci\u00f3n o parte del diagrama t\u00e9cnico' mod='escandallo'}
+                                        <i class="icon-info-circle"></i> {l s='Nombre de la sección o parte del diagrama técnico' mod='escandallo'}
                                     </p>
                                 </div>
                             </div>
@@ -667,7 +725,36 @@
                     <input type="hidden" name="id_principal_edit" id="edit_principal_id">
                     <div class="form-group">
                         <label class="required">{l s='Nombre' mod='escandallo'}</label>
-                        <input type="text" name="nombre_principal_edit" id="edit_principal_nombre" class="form-control" required>
+                        <!-- Tabs de idiomas para edición -->
+                        <div class="translatable-field">
+                            {foreach $languages as $language}
+                                <div class="translatable-field lang-{$language.id_lang}" style="display: {if $language.id_lang == $default_language}block{else}none{/if}; margin-bottom: 10px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}">
+                                        </span>
+                                        <input type="text"
+                                               name="nombre_principal_edit_{$language.id_lang}"
+                                               id="edit_principal_nombre_{$language.id_lang}"
+                                               class="form-control"
+                                               {if $language.id_lang == $default_language}required{/if}>
+                                    </div>
+                                </div>
+                            {/foreach}
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                                {l s='Cambiar idioma' mod='escandallo'}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {foreach $languages as $language}
+                                    <li>
+                                        <a href="javascript:showLangField({$language.id_lang}, 'nombre_principal_edit');">
+                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}"> {$language.name}
+                                        </a>
+                                    </li>
+                                {/foreach}
+                            </ul>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>{l s='Imagen actual' mod='escandallo'}</label>
@@ -710,7 +797,36 @@
                     </div>
                     <div class="form-group">
                         <label class="required">{l s='Nombre' mod='escandallo'}</label>
-                        <input type="text" name="nombre_parte_edit" id="edit_parte_nombre" class="form-control" required>
+                        <!-- Tabs de idiomas para edición -->
+                        <div class="translatable-field">
+                            {foreach $languages as $language}
+                                <div class="translatable-field lang-{$language.id_lang}" style="display: {if $language.id_lang == $default_language}block{else}none{/if}; margin-bottom: 10px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}">
+                                        </span>
+                                        <input type="text"
+                                               name="nombre_parte_edit_{$language.id_lang}"
+                                               id="edit_parte_nombre_{$language.id_lang}"
+                                               class="form-control"
+                                               {if $language.id_lang == $default_language}required{/if}>
+                                    </div>
+                                </div>
+                            {/foreach}
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                                {l s='Cambiar idioma' mod='escandallo'}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {foreach $languages as $language}
+                                    <li>
+                                        <a href="javascript:showLangField({$language.id_lang}, 'nombre_parte_edit');">
+                                            <img src="../img/l/{$language.id_lang}.jpg" alt="{$language.name}"> {$language.name}
+                                        </a>
+                                    </li>
+                                {/foreach}
+                            </ul>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>{l s='Imagen actual' mod='escandallo'}</label>
@@ -785,6 +901,12 @@
 </div>
 
 <script>
+// Función para mostrar/ocultar campos de idioma
+function showLangField(id_lang, field_name) {
+    $('.translatable-field.lang-' + id_lang).show();
+    $('.translatable-field[class*="lang-"]').not('.lang-' + id_lang).hide();
+}
+
 $(document).ready(function() {
     // Editar Principal
     $('.btn-edit-principal').on('click', function() {
@@ -793,7 +915,12 @@ $(document).ready(function() {
         var imagen = $(this).data('imagen');
 
         $('#edit_principal_id').val(id);
-        $('#edit_principal_nombre').val(nombre);
+
+        // Llenar todos los campos de idioma con el nombre actual
+        {foreach $languages as $language}
+            $('#edit_principal_nombre_{$language.id_lang}').val(nombre);
+        {/foreach}
+
         $('#edit_principal_imagen_hidden').val(imagen);
 
         if (imagen) {
@@ -814,7 +941,12 @@ $(document).ready(function() {
 
         $('#edit_parte_id').val(id);
         $('#edit_parte_id_principal').val(idPrincipal);
-        $('#edit_parte_nombre').val(nombre);
+
+        // Llenar todos los campos de idioma con el nombre actual
+        {foreach $languages as $language}
+            $('#edit_parte_nombre_{$language.id_lang}').val(nombre);
+        {/foreach}
+
         $('#edit_parte_imagen_hidden').val(imagen);
 
         if (imagen) {

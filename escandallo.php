@@ -340,11 +340,20 @@ class Escandallo extends Module
     private function processEditPrincipal()
     {
         $id_principal = (int)Tools::getValue('id_principal_edit');
-        $nombre = Tools::getValue('nombre_principal_edit');
         $imagen_actual = Tools::getValue('imagen_actual_principal');
+        $nombres = []; // Array de nombres por idioma
+        $languages = Language::getLanguages(false);
 
-        if (empty($nombre) || $id_principal <= 0) {
-            return $this->displayError($this->l('Todos los campos son obligatorios'));
+        // Recoger nombres de todos los idiomas
+        foreach ($languages as $lang) {
+            $nombre = Tools::getValue('nombre_principal_edit_' . $lang['id_lang']);
+            if (!empty($nombre)) {
+                $nombres[$lang['id_lang']] = $nombre;
+            }
+        }
+
+        if (empty($nombres) || $id_principal <= 0) {
+            return $this->displayError($this->l('El nombre es obligatorio (al menos en un idioma)'));
         }
 
         // Intentar subir nueva imagen si se proporcionó
@@ -353,28 +362,60 @@ class Escandallo extends Module
             $imagen = $imagen_actual; // Mantener imagen actual si no se subió nueva
         }
 
+        // 1. Actualizar tabla principal (sin nombre)
         $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_principal`
-                SET `nombre` = "' . pSQL($nombre) . '",
-                    `imagen` = "' . pSQL($imagen) . '",
+                SET `imagen` = "' . pSQL($imagen) . '",
                     `date_upd` = NOW()
                 WHERE `id_principal` = ' . $id_principal;
 
-        if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Principal actualizado correctamente'));
+        if (!Db::getInstance()->execute($sql)) {
+            return $this->displayError($this->l('Error al actualizar el principal'));
         }
 
-        return $this->displayError($this->l('Error al actualizar el principal'));
+        // 2. Actualizar nombres en todas las lenguas
+        foreach ($nombres as $id_lang => $nombre) {
+            // Verificar si ya existe el registro
+            $exists = Db::getInstance()->getValue(
+                'SELECT id_principal FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`
+                WHERE id_principal = ' . $id_principal . ' AND id_lang = ' . (int)$id_lang
+            );
+
+            if ($exists) {
+                // Actualizar
+                Db::getInstance()->update('escandallo_principal_lang', [
+                    'nombre' => pSQL($nombre)
+                ], 'id_principal = ' . $id_principal . ' AND id_lang = ' . (int)$id_lang);
+            } else {
+                // Insertar
+                Db::getInstance()->insert('escandallo_principal_lang', [
+                    'id_principal' => $id_principal,
+                    'id_lang' => (int)$id_lang,
+                    'nombre' => pSQL($nombre)
+                ]);
+            }
+        }
+
+        return $this->displayConfirmation($this->l('Principal actualizado correctamente'));
     }
 
     private function processEditParte()
     {
         $id_parte = (int)Tools::getValue('id_parte_edit');
         $id_principal = (int)Tools::getValue('id_principal_parte_edit');
-        $nombre = Tools::getValue('nombre_parte_edit');
         $imagen_actual = Tools::getValue('imagen_actual_parte');
+        $nombres = []; // Array de nombres por idioma
+        $languages = Language::getLanguages(false);
 
-        if (empty($nombre) || $id_parte <= 0 || $id_principal <= 0) {
-            return $this->displayError($this->l('Todos los campos son obligatorios'));
+        // Recoger nombres de todos los idiomas
+        foreach ($languages as $lang) {
+            $nombre = Tools::getValue('nombre_parte_edit_' . $lang['id_lang']);
+            if (!empty($nombre)) {
+                $nombres[$lang['id_lang']] = $nombre;
+            }
+        }
+
+        if (empty($nombres) || $id_parte <= 0 || $id_principal <= 0) {
+            return $this->displayError($this->l('El nombre es obligatorio (al menos en un idioma)'));
         }
 
         // Intentar subir nueva imagen si se proporcionó
@@ -383,18 +424,41 @@ class Escandallo extends Module
             $imagen = $imagen_actual; // Mantener imagen actual si no se subió nueva
         }
 
+        // 1. Actualizar tabla parte (sin nombre)
         $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_parte`
                 SET `id_principal` = ' . $id_principal . ',
-                    `nombre` = "' . pSQL($nombre) . '",
                     `imagen` = "' . pSQL($imagen) . '",
                     `date_upd` = NOW()
                 WHERE `id_parte` = ' . $id_parte;
 
-        if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Parte actualizada correctamente'));
+        if (!Db::getInstance()->execute($sql)) {
+            return $this->displayError($this->l('Error al actualizar la parte'));
         }
 
-        return $this->displayError($this->l('Error al actualizar la parte'));
+        // 2. Actualizar nombres en todas las lenguas
+        foreach ($nombres as $id_lang => $nombre) {
+            // Verificar si ya existe el registro
+            $exists = Db::getInstance()->getValue(
+                'SELECT id_parte FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`
+                WHERE id_parte = ' . $id_parte . ' AND id_lang = ' . (int)$id_lang
+            );
+
+            if ($exists) {
+                // Actualizar
+                Db::getInstance()->update('escandallo_parte_lang', [
+                    'nombre' => pSQL($nombre)
+                ], 'id_parte = ' . $id_parte . ' AND id_lang = ' . (int)$id_lang);
+            } else {
+                // Insertar
+                Db::getInstance()->insert('escandallo_parte_lang', [
+                    'id_parte' => $id_parte,
+                    'id_lang' => (int)$id_lang,
+                    'nombre' => pSQL($nombre)
+                ]);
+            }
+        }
+
+        return $this->displayConfirmation($this->l('Parte actualizada correctamente'));
     }
 
     private function processEditProductoParte()
@@ -1034,7 +1098,9 @@ private function renderConfigForm()
             'partes' => $partes,
             'productos_partes' => $productos_partes,
             'shop_url' => $shop_url,
-            'link' => $this->context->link
+            'link' => $this->context->link,
+            'languages' => Language::getLanguages(false),
+            'default_language' => (int)Configuration::get('PS_LANG_DEFAULT')
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/configure.tpl');
