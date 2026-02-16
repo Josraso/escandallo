@@ -416,17 +416,38 @@ class Escandallo extends Module
             $imagen = $imagen_actual; // Mantener imagen actual si no se subió nueva
         }
 
+        // Actualizar tabla principal (sin nombre)
         $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_principal`
-                SET `nombre` = "' . pSQL($nombre) . '",
-                    `imagen` = "' . pSQL($imagen) . '",
+                SET `imagen` = "' . pSQL($imagen) . '",
                     `date_upd` = NOW()
                 WHERE `id_principal` = ' . $id_principal;
 
-        if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Principal actualizado correctamente'));
+        if (!Db::getInstance()->execute($sql)) {
+            return $this->displayError($this->l('Error al actualizar el principal'));
         }
 
-        return $this->displayError($this->l('Error al actualizar el principal'));
+        // Actualizar nombre en tabla _lang para el idioma actual
+        $id_lang = (int)$this->context->language->id;
+        $exists = Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`
+            WHERE `id_principal` = ' . $id_principal . ' AND `id_lang` = ' . $id_lang
+        );
+
+        if ($exists) {
+            Db::getInstance()->execute(
+                'UPDATE `' . _DB_PREFIX_ . 'escandallo_principal_lang`
+                SET `nombre` = "' . pSQL($nombre) . '"
+                WHERE `id_principal` = ' . $id_principal . ' AND `id_lang` = ' . $id_lang
+            );
+        } else {
+            Db::getInstance()->insert('escandallo_principal_lang', [
+                'id_principal' => $id_principal,
+                'id_lang' => $id_lang,
+                'nombre' => pSQL($nombre)
+            ]);
+        }
+
+        return $this->displayConfirmation($this->l('Principal actualizado correctamente'));
     }
 
     private function processEditParte()
@@ -446,18 +467,39 @@ class Escandallo extends Module
             $imagen = $imagen_actual; // Mantener imagen actual si no se subió nueva
         }
 
+        // Actualizar tabla parte (sin nombre)
         $sql = 'UPDATE `' . _DB_PREFIX_ . 'escandallo_parte`
                 SET `id_principal` = ' . $id_principal . ',
-                    `nombre` = "' . pSQL($nombre) . '",
                     `imagen` = "' . pSQL($imagen) . '",
                     `date_upd` = NOW()
                 WHERE `id_parte` = ' . $id_parte;
 
-        if (Db::getInstance()->execute($sql)) {
-            return $this->displayConfirmation($this->l('Parte actualizada correctamente'));
+        if (!Db::getInstance()->execute($sql)) {
+            return $this->displayError($this->l('Error al actualizar la parte'));
         }
 
-        return $this->displayError($this->l('Error al actualizar la parte'));
+        // Actualizar nombre en tabla _lang para el idioma actual
+        $id_lang = (int)$this->context->language->id;
+        $exists = Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`
+            WHERE `id_parte` = ' . $id_parte . ' AND `id_lang` = ' . $id_lang
+        );
+
+        if ($exists) {
+            Db::getInstance()->execute(
+                'UPDATE `' . _DB_PREFIX_ . 'escandallo_parte_lang`
+                SET `nombre` = "' . pSQL($nombre) . '"
+                WHERE `id_parte` = ' . $id_parte . ' AND `id_lang` = ' . $id_lang
+            );
+        } else {
+            Db::getInstance()->insert('escandallo_parte_lang', [
+                'id_parte' => $id_parte,
+                'id_lang' => $id_lang,
+                'nombre' => pSQL($nombre)
+            ]);
+        }
+
+        return $this->displayConfirmation($this->l('Parte actualizada correctamente'));
     }
 
     private function processEditProductoParte()
