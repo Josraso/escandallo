@@ -1395,6 +1395,23 @@ private function renderConfigForm()
         // Obtener la URL de la tienda
         $shop_url = Context::getContext()->shop->getBaseURL(true);
 
+        // Precargar nombres en todos los idiomas para los modales de edición
+        $principal_langs = [];
+        $rows = Db::getInstance()->executeS('SELECT id_principal, id_lang, nombre FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`');
+        if ($rows) {
+            foreach ($rows as $r) {
+                $principal_langs[$r['id_principal']][$r['id_lang']] = $r['nombre'];
+            }
+        }
+
+        $parte_langs = [];
+        $rows = Db::getInstance()->executeS('SELECT id_parte, id_lang, nombre FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`');
+        if ($rows) {
+            foreach ($rows as $r) {
+                $parte_langs[$r['id_parte']][$r['id_lang']] = $r['nombre'];
+            }
+        }
+
         $this->context->smarty->assign([
             'module_dir' => $this->_path,
             'principales' => $principales,
@@ -1404,7 +1421,9 @@ private function renderConfigForm()
             'link' => $this->context->link,
             'languages' => Language::getLanguages(false),
             'default_language' => (int)Configuration::get('PS_LANG_DEFAULT'),
-            'img_lang_dir' => _PS_IMG_ . 'l/'
+            'img_lang_dir' => _PS_IMG_ . 'l/',
+            'principal_langs' => $principal_langs,
+            'parte_langs' => $parte_langs
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/configure.tpl');

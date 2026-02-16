@@ -188,7 +188,7 @@
                                                 <a href="javascript:void(0);"
                                                    class="btn btn-primary btn-sm btn-edit-principal"
                                                    data-id="{$principal.id_principal}"
-                                                   data-nombre="{$principal.nombre|escape:'html':'UTF-8'}"
+                                                   data-nombres='{if isset($principal_langs[$principal.id_principal])}{$principal_langs[$principal.id_principal]|json_encode}{else}{literal}{}{/literal}{/if}'
                                                    data-imagen="{$principal.imagen}"
                                                    title="{l s='Editar' mod='escandallo'}">
                                                     <i class="icon-edit"></i>
@@ -344,7 +344,7 @@
                                                    class="btn btn-primary btn-sm btn-edit-parte"
                                                    data-id="{$parte.id_parte}"
                                                    data-id-principal="{$parte.id_principal}"
-                                                   data-nombre="{$parte.nombre|escape:'html':'UTF-8'}"
+                                                   data-nombres='{if isset($parte_langs[$parte.id_parte])}{$parte_langs[$parte.id_parte]|json_encode}{else}{literal}{}{/literal}{/if}'
                                                    data-imagen="{$parte.imagen}"
                                                    title="{l s='Editar' mod='escandallo'}">
                                                     <i class="icon-edit"></i>
@@ -858,9 +858,10 @@
 
 <script>
 $(document).ready(function() {
-    // Editar Principal - AJAX para cargar todos los idiomas
+    // Editar Principal - cargar nombres de todos los idiomas desde data-attributes
     $('.btn-edit-principal').on('click', function() {
         var id = $(this).data('id');
+        var nombres = $(this).data('nombres') || {literal}{}{/literal};
         var imagen = $(this).data('imagen');
 
         $('#edit_principal_id').val(id);
@@ -872,34 +873,20 @@ $(document).ready(function() {
             $('#edit_principal_imagen_actual').html('<em>{l s='Sin imagen' mod='escandallo'}</em>');
         }
 
-        // Limpiar todos los campos de idioma
+        // Limpiar y rellenar todos los campos de idioma
         $('[id^="edit_principal_nombre_"]').val('');
-
-        // Cargar nombres en todos los idiomas vía AJAX
-        $.ajax({
-            url: '{$module_dir}ajax_escandallo.php',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                action: 'getPrincipalNames',
-                id_principal: id
-            },
-            success: function(response) {
-                if (response && response.names) {
-                    $.each(response.names, function(id_lang, nombre) {
-                        $('#edit_principal_nombre_' + id_lang).val(nombre);
-                    });
-                }
-            }
+        $.each(nombres, function(id_lang, nombre) {
+            $('#edit_principal_nombre_' + id_lang).val(nombre);
         });
 
         $('#modalEditPrincipal').modal('show');
     });
 
-    // Editar Parte - AJAX para cargar todos los idiomas
+    // Editar Parte - cargar nombres de todos los idiomas desde data-attributes
     $('.btn-edit-parte').on('click', function() {
         var id = $(this).data('id');
         var idPrincipal = $(this).data('id-principal');
+        var nombres = $(this).data('nombres') || {literal}{}{/literal};
         var imagen = $(this).data('imagen');
 
         $('#edit_parte_id').val(id);
@@ -912,25 +899,10 @@ $(document).ready(function() {
             $('#edit_parte_imagen_actual').html('<em>{l s='Sin imagen' mod='escandallo'}</em>');
         }
 
-        // Limpiar todos los campos de idioma
+        // Limpiar y rellenar todos los campos de idioma
         $('[id^="edit_parte_nombre_"]').val('');
-
-        // Cargar nombres en todos los idiomas vía AJAX
-        $.ajax({
-            url: '{$module_dir}ajax_escandallo.php',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                action: 'getParteNames',
-                id_parte: id
-            },
-            success: function(response) {
-                if (response && response.names) {
-                    $.each(response.names, function(id_lang, nombre) {
-                        $('#edit_parte_nombre_' + id_lang).val(nombre);
-                    });
-                }
-            }
+        $.each(nombres, function(id_lang, nombre) {
+            $('#edit_parte_nombre_' + id_lang).val(nombre);
         });
 
         $('#modalEditParte').modal('show');
