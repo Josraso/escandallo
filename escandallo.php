@@ -403,17 +403,30 @@ class Escandallo extends Module
     private function processEditPrincipal()
     {
         $id_principal = (int)Tools::getValue('id_principal_edit');
-        $nombre = Tools::getValue('nombre_principal_edit');
         $imagen_actual = Tools::getValue('imagen_actual_principal');
 
-        if (empty($nombre) || $id_principal <= 0) {
-            return $this->displayError($this->l('Todos los campos son obligatorios'));
+        if ($id_principal <= 0) {
+            return $this->displayError($this->l('ID principal es obligatorio'));
+        }
+
+        // Recoger nombres de todos los idiomas
+        $nombres = [];
+        $languages = Language::getLanguages(false);
+        foreach ($languages as $lang) {
+            $nombre = Tools::getValue('nombre_principal_edit_' . $lang['id_lang']);
+            if (!empty($nombre)) {
+                $nombres[$lang['id_lang']] = $nombre;
+            }
+        }
+
+        if (empty($nombres)) {
+            return $this->displayError($this->l('El nombre es obligatorio (al menos un idioma)'));
         }
 
         // Intentar subir nueva imagen si se proporcionó
         $imagen = $this->uploadImage('imagen_principal_edit', 'principales');
         if ($imagen === null) {
-            $imagen = $imagen_actual; // Mantener imagen actual si no se subió nueva
+            $imagen = $imagen_actual;
         }
 
         // Actualizar tabla principal (sin nombre)
@@ -426,25 +439,26 @@ class Escandallo extends Module
             return $this->displayError($this->l('Error al actualizar el principal'));
         }
 
-        // Actualizar nombre en tabla _lang para el idioma actual
-        $id_lang = (int)$this->context->language->id;
-        $exists = Db::getInstance()->getValue(
-            'SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`
-            WHERE `id_principal` = ' . $id_principal . ' AND `id_lang` = ' . $id_lang
-        );
-
-        if ($exists) {
-            Db::getInstance()->execute(
-                'UPDATE `' . _DB_PREFIX_ . 'escandallo_principal_lang`
-                SET `nombre` = "' . pSQL($nombre) . '"
-                WHERE `id_principal` = ' . $id_principal . ' AND `id_lang` = ' . $id_lang
+        // Actualizar nombres en TODOS los idiomas
+        foreach ($nombres as $id_lang => $nombre) {
+            $exists = Db::getInstance()->getValue(
+                'SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`
+                WHERE `id_principal` = ' . $id_principal . ' AND `id_lang` = ' . (int)$id_lang
             );
-        } else {
-            Db::getInstance()->insert('escandallo_principal_lang', [
-                'id_principal' => $id_principal,
-                'id_lang' => $id_lang,
-                'nombre' => pSQL($nombre)
-            ]);
+
+            if ($exists) {
+                Db::getInstance()->execute(
+                    'UPDATE `' . _DB_PREFIX_ . 'escandallo_principal_lang`
+                    SET `nombre` = "' . pSQL($nombre) . '"
+                    WHERE `id_principal` = ' . $id_principal . ' AND `id_lang` = ' . (int)$id_lang
+                );
+            } else {
+                Db::getInstance()->insert('escandallo_principal_lang', [
+                    'id_principal' => $id_principal,
+                    'id_lang' => (int)$id_lang,
+                    'nombre' => pSQL($nombre)
+                ]);
+            }
         }
 
         return $this->displayConfirmation($this->l('Principal actualizado correctamente'));
@@ -454,17 +468,30 @@ class Escandallo extends Module
     {
         $id_parte = (int)Tools::getValue('id_parte_edit');
         $id_principal = (int)Tools::getValue('id_principal_parte_edit');
-        $nombre = Tools::getValue('nombre_parte_edit');
         $imagen_actual = Tools::getValue('imagen_actual_parte');
 
-        if (empty($nombre) || $id_parte <= 0 || $id_principal <= 0) {
+        if ($id_parte <= 0 || $id_principal <= 0) {
             return $this->displayError($this->l('Todos los campos son obligatorios'));
+        }
+
+        // Recoger nombres de todos los idiomas
+        $nombres = [];
+        $languages = Language::getLanguages(false);
+        foreach ($languages as $lang) {
+            $nombre = Tools::getValue('nombre_parte_edit_' . $lang['id_lang']);
+            if (!empty($nombre)) {
+                $nombres[$lang['id_lang']] = $nombre;
+            }
+        }
+
+        if (empty($nombres)) {
+            return $this->displayError($this->l('El nombre es obligatorio (al menos un idioma)'));
         }
 
         // Intentar subir nueva imagen si se proporcionó
         $imagen = $this->uploadImage('imagen_parte_edit', 'partes');
         if ($imagen === null) {
-            $imagen = $imagen_actual; // Mantener imagen actual si no se subió nueva
+            $imagen = $imagen_actual;
         }
 
         // Actualizar tabla parte (sin nombre)
@@ -478,25 +505,26 @@ class Escandallo extends Module
             return $this->displayError($this->l('Error al actualizar la parte'));
         }
 
-        // Actualizar nombre en tabla _lang para el idioma actual
-        $id_lang = (int)$this->context->language->id;
-        $exists = Db::getInstance()->getValue(
-            'SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`
-            WHERE `id_parte` = ' . $id_parte . ' AND `id_lang` = ' . $id_lang
-        );
-
-        if ($exists) {
-            Db::getInstance()->execute(
-                'UPDATE `' . _DB_PREFIX_ . 'escandallo_parte_lang`
-                SET `nombre` = "' . pSQL($nombre) . '"
-                WHERE `id_parte` = ' . $id_parte . ' AND `id_lang` = ' . $id_lang
+        // Actualizar nombres en TODOS los idiomas
+        foreach ($nombres as $id_lang => $nombre) {
+            $exists = Db::getInstance()->getValue(
+                'SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`
+                WHERE `id_parte` = ' . $id_parte . ' AND `id_lang` = ' . (int)$id_lang
             );
-        } else {
-            Db::getInstance()->insert('escandallo_parte_lang', [
-                'id_parte' => $id_parte,
-                'id_lang' => $id_lang,
-                'nombre' => pSQL($nombre)
-            ]);
+
+            if ($exists) {
+                Db::getInstance()->execute(
+                    'UPDATE `' . _DB_PREFIX_ . 'escandallo_parte_lang`
+                    SET `nombre` = "' . pSQL($nombre) . '"
+                    WHERE `id_parte` = ' . $id_parte . ' AND `id_lang` = ' . (int)$id_lang
+                );
+            } else {
+                Db::getInstance()->insert('escandallo_parte_lang', [
+                    'id_parte' => $id_parte,
+                    'id_lang' => (int)$id_lang,
+                    'nombre' => pSQL($nombre)
+                ]);
+            }
         }
 
         return $this->displayConfirmation($this->l('Parte actualizada correctamente'));
@@ -536,6 +564,16 @@ class Escandallo extends Module
         return $this->displayError($this->l('Error al actualizar el producto asociado'));
     }
 
+    private function buildLanguageMap()
+    {
+        $languages = Language::getLanguages(false);
+        $map = [];
+        foreach ($languages as $lang) {
+            $map[strtolower($lang['iso_code'])] = (int)$lang['id_lang'];
+        }
+        return $map;
+    }
+
     private function processImportCSV()
     {
         if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] != UPLOAD_ERR_OK) {
@@ -553,32 +591,153 @@ class Escandallo extends Module
         $imported = 0;
         $errors = 0;
 
+        // Detectar formato multiidioma analizando cabeceras
+        $langMap = $this->buildLanguageMap();
+        $isMultilang = false;
+        $colMap = []; // Mapeo de columnas por nombre
+
+        foreach ($header as $index => $column) {
+            $colMap[trim(strtolower($column))] = $index;
+        }
+
+        // Detectar columnas de idioma para principales y partes
+        $langCols = ['principal' => [], 'parte' => [], 'producto' => [], 'descripcion' => []];
+        foreach ($header as $index => $column) {
+            $col = trim(strtolower($column));
+            if (preg_match('/^nombre_principal_([a-z]{2})$/', $col, $m)) {
+                $isMultilang = true;
+                if (isset($langMap[$m[1]])) {
+                    $langCols['principal'][$langMap[$m[1]]] = $index;
+                }
+            }
+            if (preg_match('/^nombre_parte_([a-z]{2})$/', $col, $m)) {
+                if (isset($langMap[$m[1]])) {
+                    $langCols['parte'][$langMap[$m[1]]] = $index;
+                }
+            }
+            if (preg_match('/^nombre_producto_([a-z]{2})$/', $col, $m)) {
+                if (isset($langMap[$m[1]])) {
+                    $langCols['producto'][$langMap[$m[1]]] = $index;
+                }
+            }
+            if (preg_match('/^descripcion_([a-z]{2})$/', $col, $m)) {
+                if (isset($langMap[$m[1]])) {
+                    $langCols['descripcion'][$langMap[$m[1]]] = $index;
+                }
+            }
+        }
+
+        // Determinar índices de columnas fijas
+        // Formato viejo: posiciones fijas 0-15
+        // Formato nuevo: buscar por nombre de cabecera
+        $getCol = function($name, $default = null) use ($colMap) {
+            return isset($colMap[$name]) ? $colMap[$name] : $default;
+        };
+
+        $col_id_principal = $getCol('id_principal', 0);
+        $col_imagen_principal = $getCol('imagen_principal', $isMultilang ? null : 2);
+        $col_id_parte = $getCol('id_parte', $isMultilang ? null : 3);
+        $col_imagen_parte = $getCol('imagen_parte', $isMultilang ? null : 5);
+        $col_id_product = $getCol('id_product', $isMultilang ? null : 6);
+        $col_numero_imagen = $getCol('numero_imagen', $isMultilang ? null : 7);
+        $col_referencia = $getCol('referencia', $isMultilang ? null : 8);
+        $col_precio = $getCol('precio', $isMultilang ? null : 11);
+        $col_imagen_producto = $getCol('imagen_producto', $isMultilang ? null : 12);
+        $col_stock = $getCol('stock', $isMultilang ? null : 13);
+        $col_id_categoria = $getCol('id_categoria', $isMultilang ? null : 14);
+        $col_id_tax = $getCol('id_tax_rules_group', $isMultilang ? null : 15);
+
+        // Columnas de formato viejo (sin multiidioma)
+        $col_nombre_principal = $getCol('nombre_principal', 1);
+        $col_nombre_parte = $getCol('nombre_parte', 4);
+        $col_nombre_producto = $getCol('nombre_producto', 9);
+        $col_descripcion = $getCol('descripcion', 10);
+
+        $languages = Language::getLanguages(false);
+
         while (($data = fgetcsv($handle, 0, ';')) !== false) {
-            if (count($data) < 16) {
-                $errors++;
-                continue;
+            $id_principal = isset($data[$col_id_principal]) ? (int)$data[$col_id_principal] : 0;
+            $imagen_principal = ($col_imagen_principal !== null && isset($data[$col_imagen_principal])) ? $data[$col_imagen_principal] : '';
+            $id_parte = ($col_id_parte !== null && isset($data[$col_id_parte])) ? (int)$data[$col_id_parte] : 0;
+            $imagen_parte = ($col_imagen_parte !== null && isset($data[$col_imagen_parte])) ? $data[$col_imagen_parte] : '';
+            $id_product = ($col_id_product !== null && isset($data[$col_id_product])) ? (int)$data[$col_id_product] : 0;
+            $numero_imagen = ($col_numero_imagen !== null && isset($data[$col_numero_imagen])) ? (int)$data[$col_numero_imagen] : 0;
+            $referencia = ($col_referencia !== null && isset($data[$col_referencia])) ? $data[$col_referencia] : '';
+            $precio = ($col_precio !== null && isset($data[$col_precio])) ? (float)$data[$col_precio] : 0;
+            $imagen_producto = ($col_imagen_producto !== null && isset($data[$col_imagen_producto])) ? $data[$col_imagen_producto] : '';
+            $stock = ($col_stock !== null && isset($data[$col_stock])) ? (int)$data[$col_stock] : 0;
+            $id_category = ($col_id_categoria !== null && isset($data[$col_id_categoria])) ? (int)$data[$col_id_categoria] : 0;
+            $id_tax_rules_group = ($col_id_tax !== null && isset($data[$col_id_tax])) ? (int)$data[$col_id_tax] : 0;
+
+            // Obtener nombres multiidioma o formato viejo
+            $nombres_principal = [];
+            $nombres_parte = [];
+            $nombres_producto = [];
+            $descripciones = [];
+
+            if ($isMultilang && !empty($langCols['principal'])) {
+                foreach ($langCols['principal'] as $id_lang => $colIndex) {
+                    if (isset($data[$colIndex]) && !empty(trim($data[$colIndex]))) {
+                        $nombres_principal[$id_lang] = $data[$colIndex];
+                    }
+                }
+            } else {
+                $nombre = isset($data[$col_nombre_principal]) ? $data[$col_nombre_principal] : '';
+                if (!empty(trim($nombre))) {
+                    foreach ($languages as $lang) {
+                        $nombres_principal[$lang['id_lang']] = $nombre;
+                    }
+                }
             }
 
-            $id_principal = (int)$data[0];
-            $nombre_principal = $data[1];
-            $imagen_principal = $data[2];
-            $id_parte = (int)$data[3];
-            $nombre_parte = $data[4];
-            $imagen_parte = $data[5];
-            $id_product = (int)$data[6];
-            $numero_imagen = (int)$data[7];
-            $referencia = $data[8];
-            $nombre_producto = $data[9];
-            $descripcion = $data[10];
-            $precio = (float)$data[11];
-            $imagen_producto = $data[12];
-            $stock = (int)$data[13];
-            $id_category = (int)$data[14];
-            $id_tax_rules_group = (int)$data[15];
+            if ($isMultilang && !empty($langCols['parte'])) {
+                foreach ($langCols['parte'] as $id_lang => $colIndex) {
+                    if (isset($data[$colIndex]) && !empty(trim($data[$colIndex]))) {
+                        $nombres_parte[$id_lang] = $data[$colIndex];
+                    }
+                }
+            } else {
+                $nombre = isset($data[$col_nombre_parte]) ? $data[$col_nombre_parte] : '';
+                if (!empty(trim($nombre))) {
+                    foreach ($languages as $lang) {
+                        $nombres_parte[$lang['id_lang']] = $nombre;
+                    }
+                }
+            }
+
+            if ($isMultilang && !empty($langCols['producto'])) {
+                foreach ($langCols['producto'] as $id_lang => $colIndex) {
+                    if (isset($data[$colIndex]) && !empty(trim($data[$colIndex]))) {
+                        $nombres_producto[$id_lang] = $data[$colIndex];
+                    }
+                }
+            } else {
+                $nombre = isset($data[$col_nombre_producto]) ? $data[$col_nombre_producto] : '';
+                if (!empty(trim($nombre))) {
+                    $nombres_producto[$this->context->language->id] = $nombre;
+                }
+            }
+
+            if ($isMultilang && !empty($langCols['descripcion'])) {
+                foreach ($langCols['descripcion'] as $id_lang => $colIndex) {
+                    if (isset($data[$colIndex]) && !empty(trim($data[$colIndex]))) {
+                        $descripciones[$id_lang] = $data[$colIndex];
+                    }
+                }
+            } else {
+                $desc = isset($data[$col_descripcion]) ? $data[$col_descripcion] : '';
+                if (!empty(trim($desc))) {
+                    $descripciones[$this->context->language->id] = $desc;
+                }
+            }
+
+            // Para compatibilidad con el nombre de producto (necesitamos al menos uno)
+            $nombre_producto = reset($nombres_producto) ?: '';
+            $descripcion = reset($descripciones) ?: '';
 
             try {
                 // VALIDACIÓN: Solo crear principal si tiene datos válidos
-                if ($id_principal > 0 && !empty(trim($nombre_principal))) {
+                if ($id_principal > 0 && !empty($nombres_principal)) {
                     $principal_exists = Db::getInstance()->getValue(
                         'SELECT id_principal FROM `' . _DB_PREFIX_ . 'escandallo_principal` WHERE id_principal = ' . $id_principal
                     );
@@ -591,20 +750,19 @@ class Escandallo extends Module
                             'date_upd' => date('Y-m-d H:i:s')
                         ]);
 
-                        // Insertar nombre en TODOS los idiomas
-                        $languages = Language::getLanguages(false);
-                        foreach ($languages as $lang) {
+                        // Insertar nombres en los idiomas disponibles
+                        foreach ($nombres_principal as $id_lang => $nombre) {
                             Db::getInstance()->insert('escandallo_principal_lang', [
                                 'id_principal' => $id_principal,
-                                'id_lang' => (int)$lang['id_lang'],
-                                'nombre' => pSQL($nombre_principal)
+                                'id_lang' => (int)$id_lang,
+                                'nombre' => pSQL($nombre)
                             ]);
                         }
                     }
                 }
 
                 // VALIDACIÓN: Solo crear parte si tiene datos válidos
-                if ($id_parte > 0 && !empty(trim($nombre_parte)) && $id_principal > 0) {
+                if ($id_parte > 0 && !empty($nombres_parte) && $id_principal > 0) {
                     $parte_exists = Db::getInstance()->getValue(
                         'SELECT id_parte FROM `' . _DB_PREFIX_ . 'escandallo_parte` WHERE id_parte = ' . $id_parte
                     );
@@ -618,13 +776,12 @@ class Escandallo extends Module
                             'date_upd' => date('Y-m-d H:i:s')
                         ]);
 
-                        // Insertar nombre en TODOS los idiomas
-                        $languages = Language::getLanguages(false);
-                        foreach ($languages as $lang) {
+                        // Insertar nombres en los idiomas disponibles
+                        foreach ($nombres_parte as $id_lang => $nombre) {
                             Db::getInstance()->insert('escandallo_parte_lang', [
                                 'id_parte' => $id_parte,
-                                'id_lang' => (int)$lang['id_lang'],
-                                'nombre' => pSQL($nombre_parte)
+                                'id_lang' => (int)$id_lang,
+                                'nombre' => pSQL($nombre)
                             ]);
                         }
                     }
@@ -637,14 +794,22 @@ class Escandallo extends Module
                         'SELECT id_product FROM `' . _DB_PREFIX_ . 'product` WHERE id_product = ' . $id_product
                     );
 
+                    // Preparar arrays multiidioma para productos
+                    $product_names = !empty($nombres_producto) ? $nombres_producto : [$this->context->language->id => $nombre_producto];
+                    $product_descs = !empty($descripciones) ? $descripciones : [$this->context->language->id => $descripcion];
+                    $product_rewrites = [];
+                    foreach ($product_names as $lid => $pname) {
+                        $product_rewrites[$lid] = Tools::link_rewrite($pname);
+                    }
+
                     if (!$product_exists) {
                         // Crear producto nuevo
                         $product = new Product();
                         $product->id_product = $id_product;
                         $product->reference = $referencia;
-                        $product->name = [$this->context->language->id => $nombre_producto];
-                        $product->description = [$this->context->language->id => $descripcion];
-                        $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
+                        $product->name = $product_names;
+                        $product->description = $product_descs;
+                        $product->link_rewrite = $product_rewrites;
                         $product->price = $precio;
                         $product->visibility = 'none';
                         $product->active = 1;
@@ -706,9 +871,9 @@ class Escandallo extends Module
                         // Producto existe, ACTUALIZAR con datos del CSV
                         $product = new Product($id_product);
                         $product->reference = $referencia;
-                        $product->name = [$this->context->language->id => $nombre_producto];
-                        $product->description = [$this->context->language->id => $descripcion];
-                        $product->link_rewrite = [$this->context->language->id => Tools::link_rewrite($nombre_producto)];
+                        $product->name = $product_names;
+                        $product->description = $product_descs;
+                        $product->link_rewrite = $product_rewrites;
                         $product->price = $precio;
                         $product->visibility = 'none';
                         $product->active = 1;
@@ -803,33 +968,29 @@ class Escandallo extends Module
 
     private function processExportCSV()
     {
-        $id_lang = (int)$this->context->language->id;
+        // Obtener idiomas activos
+        $languages = Language::getLanguages(false);
+        $langMap = []; // id_lang => iso_code
+        foreach ($languages as $lang) {
+            $langMap[$lang['id_lang']] = strtolower($lang['iso_code']);
+        }
 
-        // Obtener TODOS los datos: principales, partes y productos (con o sin asociaciones)
+        // Query base (sin datos de idioma, se cargan aparte)
         $sql = 'SELECT
                     ep.id_principal,
-                    epl.nombre as nombre_principal,
                     ep.imagen as imagen_principal,
                     epa.id_parte,
-                    epal.nombre as nombre_parte,
                     epa.imagen as imagen_parte,
                     epp.id_product,
                     epp.numero_imagen,
                     p.reference,
-                    pl.name as nombre_producto,
-                    pl.description,
                     p.price,
                     p.id_category_default,
                     p.id_tax_rules_group
                 FROM `' . _DB_PREFIX_ . 'escandallo_principal` ep
-                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` epl
-                    ON (ep.id_principal = epl.id_principal AND epl.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_principal = ep.id_principal
-                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` epal
-                    ON (epa.id_parte = epal.id_parte AND epal.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp ON epp.id_parte = epa.id_parte
                 LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
-                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . $id_lang . '
                 ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
 
         $results = Db::getInstance()->executeS($sql);
@@ -840,8 +1001,29 @@ class Escandallo extends Module
             return;
         }
 
+        // Precargar todos los nombres multiidioma
+        $principalNames = [];
+        $rows = Db::getInstance()->executeS('SELECT id_principal, id_lang, nombre FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`');
+        foreach ($rows as $r) {
+            $principalNames[$r['id_principal']][$r['id_lang']] = $r['nombre'];
+        }
+
+        $parteNames = [];
+        $rows = Db::getInstance()->executeS('SELECT id_parte, id_lang, nombre FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`');
+        foreach ($rows as $r) {
+            $parteNames[$r['id_parte']][$r['id_lang']] = $r['nombre'];
+        }
+
+        $productNames = [];
+        $productDescs = [];
+        $rows = Db::getInstance()->executeS('SELECT id_product, id_lang, name, description FROM `' . _DB_PREFIX_ . 'product_lang`');
+        foreach ($rows as $r) {
+            $productNames[$r['id_product']][$r['id_lang']] = $r['name'];
+            $productDescs[$r['id_product']][$r['id_lang']] = $r['description'];
+        }
+
         // Nombre del archivo
-        $filename = 'escandallo_export_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = 'escandallo_export_multilang_' . date('Y-m-d_H-i-s') . '.csv';
 
         // Headers para descarga
         header('Content-Type: text/csv; charset=utf-8');
@@ -849,67 +1031,87 @@ class Escandallo extends Module
         header('Pragma: no-cache');
         header('Expires: 0');
 
-        // Abrir output
         $output = fopen('php://output', 'w');
-
-        // BOM para UTF-8
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
-        // Cabecera
-        fputcsv($output, [
-            'id_principal',
-            'nombre_principal',
-            'imagen_principal',
-            'id_parte',
-            'nombre_parte',
-            'imagen_parte',
-            'id_product',
-            'numero_imagen',
-            'referencia',
-            'nombre_producto',
-            'descripcion',
-            'precio',
-            'imagen_producto',
-            'stock',
-            'id_categoria',
-            'id_tax_rules_group'
-        ], ';');
+        // Cabecera dinámica con columnas por idioma
+        $headerRow = ['id_principal'];
+        foreach ($langMap as $id_lang => $iso) {
+            $headerRow[] = 'nombre_principal_' . $iso;
+        }
+        $headerRow[] = 'imagen_principal';
+        $headerRow[] = 'id_parte';
+        foreach ($langMap as $id_lang => $iso) {
+            $headerRow[] = 'nombre_parte_' . $iso;
+        }
+        $headerRow[] = 'imagen_parte';
+        $headerRow[] = 'id_product';
+        $headerRow[] = 'numero_imagen';
+        $headerRow[] = 'referencia';
+        foreach ($langMap as $id_lang => $iso) {
+            $headerRow[] = 'nombre_producto_' . $iso;
+        }
+        foreach ($langMap as $id_lang => $iso) {
+            $headerRow[] = 'descripcion_' . $iso;
+        }
+        $headerRow = array_merge($headerRow, ['precio', 'imagen_producto', 'stock', 'id_categoria', 'id_tax_rules_group']);
+
+        fputcsv($output, $headerRow, ';');
 
         // Datos
         foreach ($results as $row) {
-            // Si no hay producto asociado, poner valores vacíos
+            $dataRow = [$row['id_principal'] ?: ''];
+
+            // Nombres principal por idioma
+            foreach ($langMap as $id_lang => $iso) {
+                $dataRow[] = isset($principalNames[$row['id_principal']][$id_lang])
+                    ? $principalNames[$row['id_principal']][$id_lang] : '';
+            }
+            $dataRow[] = $row['imagen_principal'] ?: '';
+            $dataRow[] = $row['id_parte'] ?: '';
+
+            // Nombres parte por idioma
+            foreach ($langMap as $id_lang => $iso) {
+                $dataRow[] = ($row['id_parte'] && isset($parteNames[$row['id_parte']][$id_lang]))
+                    ? $parteNames[$row['id_parte']][$id_lang] : '';
+            }
+            $dataRow[] = $row['imagen_parte'] ?: '';
+            $dataRow[] = $row['id_product'] ?: 0;
+            $dataRow[] = $row['numero_imagen'] ?: '';
+            $dataRow[] = $row['reference'] ?: '';
+
+            // Nombres producto por idioma
+            foreach ($langMap as $id_lang => $iso) {
+                $dataRow[] = ($row['id_product'] && isset($productNames[$row['id_product']][$id_lang]))
+                    ? $productNames[$row['id_product']][$id_lang] : '';
+            }
+
+            // Descripciones por idioma
+            foreach ($langMap as $id_lang => $iso) {
+                $dataRow[] = ($row['id_product'] && isset($productDescs[$row['id_product']][$id_lang]))
+                    ? strip_tags($productDescs[$row['id_product']][$id_lang]) : '';
+            }
+
+            // Stock e imagen producto
             $stock = 0;
             $imagen_producto = '';
-
             if ($row['id_product']) {
-                // Obtener stock solo si hay producto
                 $stock = StockAvailable::getQuantityAvailableByProduct($row['id_product'], 0);
-
-                // Obtener imagen del producto
                 $images = Image::getImages($this->context->language->id, $row['id_product']);
                 if (!empty($images) && isset($images[0])) {
                     $imagen_producto = $images[0]['id_image'] . '.jpg';
                 }
             }
 
-            fputcsv($output, [
-                $row['id_principal'] ?: '',
-                $row['nombre_principal'] ?: '',
-                $row['imagen_principal'] ?: '',
-                $row['id_parte'] ?: '',
-                $row['nombre_parte'] ?: '',
-                $row['imagen_parte'] ?: '',
-                $row['id_product'] ?: 0,
-                $row['numero_imagen'] ?: '',
-                $row['reference'] ?: '',
-                $row['nombre_producto'] ?: '',
-                $row['description'] ? strip_tags($row['description']) : '',
+            $dataRow = array_merge($dataRow, [
                 $row['price'] ?: 0,
                 $imagen_producto,
                 $stock,
                 $row['id_category_default'] ?: 0,
                 $row['id_tax_rules_group'] ?: 1
-            ], ';');
+            ]);
+
+            fputcsv($output, $dataRow, ';');
         }
 
         fclose($output);
@@ -934,43 +1136,66 @@ class Escandallo extends Module
             return;
         }
 
-        // 1. Crear CSV en memoria
+        // 1. Crear CSV en memoria (formato multiidioma)
         $csvContent = chr(0xEF).chr(0xBB).chr(0xBF); // BOM UTF-8
-        $id_lang = (int)$this->context->language->id;
 
-        // Query para obtener datos
+        // Obtener idiomas activos
+        $languages = Language::getLanguages(false);
+        $langMap = [];
+        foreach ($languages as $lang) {
+            $langMap[$lang['id_lang']] = strtolower($lang['iso_code']);
+        }
+
+        // Query base
         $sql = 'SELECT
                     ep.id_principal,
-                    epl.nombre as nombre_principal,
                     ep.imagen as imagen_principal,
                     epa.id_parte,
-                    epal.nombre as nombre_parte,
                     epa.imagen as imagen_parte,
                     epp.id_product,
                     epp.numero_imagen,
                     p.reference,
-                    pl.name as nombre_producto,
-                    pl.description,
                     p.price,
                     p.id_category_default,
                     p.id_tax_rules_group
                 FROM `' . _DB_PREFIX_ . 'escandallo_principal` ep
-                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_principal_lang` epl
-                    ON (ep.id_principal = epl.id_principal AND epl.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` epa ON epa.id_principal = ep.id_principal
-                LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` epal
-                    ON (epa.id_parte = epal.id_parte AND epal.id_lang = ' . $id_lang . ')
                 LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_producto_parte` epp ON epp.id_parte = epa.id_parte
                 LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON p.id_product = epp.id_product
-                LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON pl.id_product = p.id_product AND pl.id_lang = ' . $id_lang . '
                 ORDER BY ep.id_principal, epa.id_parte, epp.numero_imagen';
 
         $results = Db::getInstance()->executeS($sql);
 
-        // Cabecera CSV
-        $header = ['id_principal', 'nombre_principal', 'imagen_principal', 'id_parte', 'nombre_parte', 'imagen_parte',
-                   'id_product', 'numero_imagen', 'referencia', 'nombre_producto', 'descripcion', 'precio',
-                   'imagen_producto', 'stock', 'id_categoria', 'id_tax_rules_group'];
+        // Precargar nombres multiidioma
+        $principalNames = [];
+        $rows = Db::getInstance()->executeS('SELECT id_principal, id_lang, nombre FROM `' . _DB_PREFIX_ . 'escandallo_principal_lang`');
+        foreach ($rows as $r) { $principalNames[$r['id_principal']][$r['id_lang']] = $r['nombre']; }
+
+        $parteNames = [];
+        $rows = Db::getInstance()->executeS('SELECT id_parte, id_lang, nombre FROM `' . _DB_PREFIX_ . 'escandallo_parte_lang`');
+        foreach ($rows as $r) { $parteNames[$r['id_parte']][$r['id_lang']] = $r['nombre']; }
+
+        $productNames = [];
+        $productDescs = [];
+        $rows = Db::getInstance()->executeS('SELECT id_product, id_lang, name, description FROM `' . _DB_PREFIX_ . 'product_lang`');
+        foreach ($rows as $r) {
+            $productNames[$r['id_product']][$r['id_lang']] = $r['name'];
+            $productDescs[$r['id_product']][$r['id_lang']] = $r['description'];
+        }
+
+        // Cabecera dinámica
+        $header = ['id_principal'];
+        foreach ($langMap as $id_lang => $iso) { $header[] = 'nombre_principal_' . $iso; }
+        $header[] = 'imagen_principal';
+        $header[] = 'id_parte';
+        foreach ($langMap as $id_lang => $iso) { $header[] = 'nombre_parte_' . $iso; }
+        $header[] = 'imagen_parte';
+        $header[] = 'id_product';
+        $header[] = 'numero_imagen';
+        $header[] = 'referencia';
+        foreach ($langMap as $id_lang => $iso) { $header[] = 'nombre_producto_' . $iso; }
+        foreach ($langMap as $id_lang => $iso) { $header[] = 'descripcion_' . $iso; }
+        $header = array_merge($header, ['precio', 'imagen_producto', 'stock', 'id_categoria', 'id_tax_rules_group']);
         $csvContent .= implode(';', $header) . "\n";
 
         // Datos CSV
@@ -987,24 +1212,32 @@ class Escandallo extends Module
                     }
                 }
 
-                $line = [
-                    $row['id_principal'] ?: '',
-                    '"' . str_replace('"', '""', $row['nombre_principal'] ?: '') . '"',
-                    '"' . str_replace('"', '""', $row['imagen_principal'] ?: '') . '"',
-                    $row['id_parte'] ?: '',
-                    '"' . str_replace('"', '""', $row['nombre_parte'] ?: '') . '"',
-                    '"' . str_replace('"', '""', $row['imagen_parte'] ?: '') . '"',
-                    $row['id_product'] ?: 0,
-                    $row['numero_imagen'] ?: '',
-                    '"' . str_replace('"', '""', $row['reference'] ?: '') . '"',
-                    '"' . str_replace('"', '""', $row['nombre_producto'] ?: '') . '"',
-                    '"' . str_replace('"', '""', strip_tags($row['description'] ?: '')) . '"',
+                $line = [$row['id_principal'] ?: ''];
+                foreach ($langMap as $id_lang => $iso) {
+                    $line[] = '"' . str_replace('"', '""', isset($principalNames[$row['id_principal']][$id_lang]) ? $principalNames[$row['id_principal']][$id_lang] : '') . '"';
+                }
+                $line[] = '"' . str_replace('"', '""', $row['imagen_principal'] ?: '') . '"';
+                $line[] = $row['id_parte'] ?: '';
+                foreach ($langMap as $id_lang => $iso) {
+                    $line[] = '"' . str_replace('"', '""', ($row['id_parte'] && isset($parteNames[$row['id_parte']][$id_lang])) ? $parteNames[$row['id_parte']][$id_lang] : '') . '"';
+                }
+                $line[] = '"' . str_replace('"', '""', $row['imagen_parte'] ?: '') . '"';
+                $line[] = $row['id_product'] ?: 0;
+                $line[] = $row['numero_imagen'] ?: '';
+                $line[] = '"' . str_replace('"', '""', $row['reference'] ?: '') . '"';
+                foreach ($langMap as $id_lang => $iso) {
+                    $line[] = '"' . str_replace('"', '""', ($row['id_product'] && isset($productNames[$row['id_product']][$id_lang])) ? $productNames[$row['id_product']][$id_lang] : '') . '"';
+                }
+                foreach ($langMap as $id_lang => $iso) {
+                    $line[] = '"' . str_replace('"', '""', ($row['id_product'] && isset($productDescs[$row['id_product']][$id_lang])) ? strip_tags($productDescs[$row['id_product']][$id_lang]) : '') . '"';
+                }
+                $line = array_merge($line, [
                     $row['price'] ?: 0,
                     '"' . str_replace('"', '""', $imagen_producto) . '"',
                     $stock,
                     $row['id_category_default'] ?: 0,
                     $row['id_tax_rules_group'] ?: 1
-                ];
+                ]);
                 $csvContent .= implode(';', $line) . "\n";
             }
         }
@@ -1168,7 +1401,10 @@ private function renderConfigForm()
             'partes' => $partes,
             'productos_partes' => $productos_partes,
             'shop_url' => $shop_url,
-            'link' => $this->context->link
+            'link' => $this->context->link,
+            'languages' => Language::getLanguages(false),
+            'default_language' => (int)Configuration::get('PS_LANG_DEFAULT'),
+            'img_lang_dir' => _PS_IMG_ . 'l/'
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/configure.tpl');

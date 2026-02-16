@@ -94,11 +94,27 @@
                                     {l s='Nombre' mod='escandallo'}
                                 </label>
                                 <div class="col-lg-9">
-                                    <input type="text"
-                                           name="nombre_principal"
-                                           class="form-control"
-                                           placeholder="{l s='Ej: Moto Deportiva, Scooter 125cc...' mod='escandallo'}"
-                                           required>
+                                    <ul class="nav nav-tabs lang-tabs" id="add_principal_tabs">
+                                        {foreach from=$languages item=language name=languages}
+                                            <li{if $smarty.foreach.languages.first} class="active"{/if}>
+                                                <a href="#add_principal_lang_{$language.id_lang}" data-toggle="tab">
+                                                    <img src="{$img_lang_dir}{$language.id_lang}.jpg" alt="{$language.name}" class="lang-flag">
+                                                    {$language.name}
+                                                </a>
+                                            </li>
+                                        {/foreach}
+                                    </ul>
+                                    <div class="tab-content translatable-field">
+                                        {foreach from=$languages item=language name=languages}
+                                            <div class="tab-pane{if $smarty.foreach.languages.first} active{/if}" id="add_principal_lang_{$language.id_lang}">
+                                                <input type="text"
+                                                       name="nombre_principal_{$language.id_lang}"
+                                                       class="form-control"
+                                                       placeholder="{l s='Ej: Moto Deportiva, Scooter 125cc...' mod='escandallo'} ({$language.name})"
+                                                       {if $smarty.foreach.languages.first}required{/if}>
+                                            </div>
+                                        {/foreach}
+                                    </div>
                                     <p class="help-block">
                                         <i class="icon-info-circle"></i> {l s='Nombre del producto principal que contendr\u00e1 varios diagramas' mod='escandallo'}
                                     </p>
@@ -230,13 +246,29 @@
                                     {l s='Nombre de la Parte' mod='escandallo'}
                                 </label>
                                 <div class="col-lg-9">
-                                    <input type="text"
-                                           name="nombre_parte"
-                                           class="form-control"
-                                           placeholder="{l s='Ej: C\u00fapula, Motor, Suspensi\u00f3n Delantera...' mod='escandallo'}"
-                                           required>
+                                    <ul class="nav nav-tabs lang-tabs" id="add_parte_tabs">
+                                        {foreach from=$languages item=language name=languages}
+                                            <li{if $smarty.foreach.languages.first} class="active"{/if}>
+                                                <a href="#add_parte_lang_{$language.id_lang}" data-toggle="tab">
+                                                    <img src="{$img_lang_dir}{$language.id_lang}.jpg" alt="{$language.name}" class="lang-flag">
+                                                    {$language.name}
+                                                </a>
+                                            </li>
+                                        {/foreach}
+                                    </ul>
+                                    <div class="tab-content translatable-field">
+                                        {foreach from=$languages item=language name=languages}
+                                            <div class="tab-pane{if $smarty.foreach.languages.first} active{/if}" id="add_parte_lang_{$language.id_lang}">
+                                                <input type="text"
+                                                       name="nombre_parte_{$language.id_lang}"
+                                                       class="form-control"
+                                                       placeholder="{l s='Ej: Cúpula, Motor, Suspensión Delantera...' mod='escandallo'} ({$language.name})"
+                                                       {if $smarty.foreach.languages.first}required{/if}>
+                                            </div>
+                                        {/foreach}
+                                    </div>
                                     <p class="help-block">
-                                        <i class="icon-info-circle"></i> {l s='Nombre de la secci\u00f3n o parte del diagrama t\u00e9cnico' mod='escandallo'}
+                                        <i class="icon-info-circle"></i> {l s='Nombre de la sección o parte del diagrama técnico' mod='escandallo'}
                                     </p>
                                 </div>
                             </div>
@@ -667,7 +699,27 @@
                     <input type="hidden" name="id_principal_edit" id="edit_principal_id">
                     <div class="form-group">
                         <label class="required">{l s='Nombre' mod='escandallo'}</label>
-                        <input type="text" name="nombre_principal_edit" id="edit_principal_nombre" class="form-control" required>
+                        <ul class="nav nav-tabs lang-tabs" id="edit_principal_tabs">
+                            {foreach from=$languages item=language name=languages}
+                                <li{if $smarty.foreach.languages.first} class="active"{/if}>
+                                    <a href="#edit_principal_lang_{$language.id_lang}" data-toggle="tab">
+                                        <img src="{$img_lang_dir}{$language.id_lang}.jpg" alt="{$language.name}" class="lang-flag">
+                                        {$language.name}
+                                    </a>
+                                </li>
+                            {/foreach}
+                        </ul>
+                        <div class="tab-content translatable-field">
+                            {foreach from=$languages item=language name=languages}
+                                <div class="tab-pane{if $smarty.foreach.languages.first} active{/if}" id="edit_principal_lang_{$language.id_lang}">
+                                    <input type="text"
+                                           name="nombre_principal_edit_{$language.id_lang}"
+                                           id="edit_principal_nombre_{$language.id_lang}"
+                                           class="form-control"
+                                           {if $smarty.foreach.languages.first}required{/if}>
+                                </div>
+                            {/foreach}
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>{l s='Imagen actual' mod='escandallo'}</label>
@@ -710,7 +762,27 @@
                     </div>
                     <div class="form-group">
                         <label class="required">{l s='Nombre' mod='escandallo'}</label>
-                        <input type="text" name="nombre_parte_edit" id="edit_parte_nombre" class="form-control" required>
+                        <ul class="nav nav-tabs lang-tabs" id="edit_parte_tabs">
+                            {foreach from=$languages item=language name=languages}
+                                <li{if $smarty.foreach.languages.first} class="active"{/if}>
+                                    <a href="#edit_parte_lang_{$language.id_lang}" data-toggle="tab">
+                                        <img src="{$img_lang_dir}{$language.id_lang}.jpg" alt="{$language.name}" class="lang-flag">
+                                        {$language.name}
+                                    </a>
+                                </li>
+                            {/foreach}
+                        </ul>
+                        <div class="tab-content translatable-field">
+                            {foreach from=$languages item=language name=languages}
+                                <div class="tab-pane{if $smarty.foreach.languages.first} active{/if}" id="edit_parte_lang_{$language.id_lang}">
+                                    <input type="text"
+                                           name="nombre_parte_edit_{$language.id_lang}"
+                                           id="edit_parte_nombre_{$language.id_lang}"
+                                           class="form-control"
+                                           {if $smarty.foreach.languages.first}required{/if}>
+                                </div>
+                            {/foreach}
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>{l s='Imagen actual' mod='escandallo'}</label>
@@ -786,14 +858,12 @@
 
 <script>
 $(document).ready(function() {
-    // Editar Principal
+    // Editar Principal - AJAX para cargar todos los idiomas
     $('.btn-edit-principal').on('click', function() {
         var id = $(this).data('id');
-        var nombre = $(this).data('nombre');
         var imagen = $(this).data('imagen');
 
         $('#edit_principal_id').val(id);
-        $('#edit_principal_nombre').val(nombre);
         $('#edit_principal_imagen_hidden').val(imagen);
 
         if (imagen) {
@@ -802,19 +872,38 @@ $(document).ready(function() {
             $('#edit_principal_imagen_actual').html('<em>{l s='Sin imagen' mod='escandallo'}</em>');
         }
 
+        // Limpiar todos los campos de idioma
+        $('[id^="edit_principal_nombre_"]').val('');
+
+        // Cargar nombres en todos los idiomas vía AJAX
+        $.ajax({
+            url: '{$module_dir}ajax_escandallo.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'getPrincipalNames',
+                id_principal: id
+            },
+            success: function(response) {
+                if (response && response.names) {
+                    $.each(response.names, function(id_lang, nombre) {
+                        $('#edit_principal_nombre_' + id_lang).val(nombre);
+                    });
+                }
+            }
+        });
+
         $('#modalEditPrincipal').modal('show');
     });
 
-    // Editar Parte
+    // Editar Parte - AJAX para cargar todos los idiomas
     $('.btn-edit-parte').on('click', function() {
         var id = $(this).data('id');
         var idPrincipal = $(this).data('id-principal');
-        var nombre = $(this).data('nombre');
         var imagen = $(this).data('imagen');
 
         $('#edit_parte_id').val(id);
         $('#edit_parte_id_principal').val(idPrincipal);
-        $('#edit_parte_nombre').val(nombre);
         $('#edit_parte_imagen_hidden').val(imagen);
 
         if (imagen) {
@@ -822,6 +911,27 @@ $(document).ready(function() {
         } else {
             $('#edit_parte_imagen_actual').html('<em>{l s='Sin imagen' mod='escandallo'}</em>');
         }
+
+        // Limpiar todos los campos de idioma
+        $('[id^="edit_parte_nombre_"]').val('');
+
+        // Cargar nombres en todos los idiomas vía AJAX
+        $.ajax({
+            url: '{$module_dir}ajax_escandallo.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'getParteNames',
+                id_parte: id
+            },
+            success: function(response) {
+                if (response && response.names) {
+                    $.each(response.names, function(id_lang, nombre) {
+                        $('#edit_parte_nombre_' + id_lang).val(nombre);
+                    });
+                }
+            }
+        });
 
         $('#modalEditParte').modal('show');
     });
@@ -890,6 +1000,62 @@ $(document).ready(function() {
 </script>
 
 <style>
+/* === LANGUAGE TABS === */
+.lang-tabs {
+    border-bottom: 2px solid #667eea !important;
+    margin-bottom: 10px !important;
+    margin-top: 5px;
+}
+
+.lang-tabs > li > a {
+    border-radius: 4px 4px 0 0 !important;
+    padding: 6px 12px !important;
+    font-size: 12px;
+    color: #555;
+    transition: all 0.2s ease;
+}
+
+.lang-tabs > li > a .lang-flag {
+    width: 16px;
+    height: 11px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.lang-tabs > li.active > a,
+.lang-tabs > li.active > a:hover,
+.lang-tabs > li.active > a:focus {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-color: #667eea !important;
+}
+
+.lang-tabs > li:not(.active) > a:hover {
+    background-color: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.3) !important;
+}
+
+.translatable-field {
+    margin-top: 5px;
+}
+
+.translatable-field > .tab-pane {
+    padding: 8px 0;
+}
+
+/* Required indicator on first lang tab */
+.lang-tabs > li:first-child > a::after {
+    content: " *";
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+/* Modal language tabs */
+.modal-body .lang-tabs > li > a {
+    padding: 5px 10px !important;
+    font-size: 11px;
+}
+
 .escandallo-admin-panel .nav-tabs {
     margin-bottom: 20px;
 }
