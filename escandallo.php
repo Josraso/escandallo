@@ -1474,7 +1474,7 @@ private function renderConfigForm()
         return Db::getInstance()->executeS(
             'SELECT pp.*, p.reference, p.id_product, pl.name, p.price, sa.quantity
             FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` pp
-            LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
+            INNER JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
             LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . (int)$this->context->language->id . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'stock_available` sa ON (p.id_product = sa.id_product AND sa.id_product_attribute = 0)
             WHERE pp.id_parte = ' . (int)$id_parte . '
@@ -1488,7 +1488,7 @@ private function renderConfigForm()
         return Db::getInstance()->executeS(
             'SELECT pp.*, p.reference, pl.name, ptl.nombre as nombre_parte, prl.nombre as nombre_principal
             FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` pp
-            LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
+            INNER JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
             LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` pt ON pp.id_parte = pt.id_parte
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` ptl
@@ -1536,7 +1536,7 @@ private function renderConfigForm()
             'SELECT DISTINCT pp.*, p.reference, pl.name, ptl.nombre as nombre_parte,
                     prl.nombre as nombre_principal, pr.id_principal, pt.id_parte
             FROM `' . _DB_PREFIX_ . 'escandallo_producto_parte` pp
-            LEFT JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
+            INNER JOIN `' . _DB_PREFIX_ . 'product` p ON pp.id_product = p.id_product
             LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ON (p.id_product = pl.id_product AND pl.id_lang = ' . $id_lang . ')
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte` pt ON pp.id_parte = pt.id_parte
             LEFT JOIN `' . _DB_PREFIX_ . 'escandallo_parte_lang` ptl

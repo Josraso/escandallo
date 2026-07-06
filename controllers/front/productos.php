@@ -29,6 +29,11 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
 
         $productos = $escandallo->getProductosByParte($id_parte);
 
+        // Filtrar productos con id_product inválido (por si acaso)
+        $productos = array_filter($productos, function($p) {
+            return !empty($p['id_product']) && (int)$p['id_product'] > 0;
+        });
+
         // Procesar datos de productos
         foreach ($productos as &$producto) {
             // Imagen del producto
