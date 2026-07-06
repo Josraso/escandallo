@@ -50,24 +50,30 @@ class EscandalloProductosModuleFrontController extends ModuleFrontController
             $product_obj = new Product($producto['id_product'], false, $this->context->language->id);
             $precio = $product_obj->getPrice(true);
 
+            // Validar que el precio sea un número válido
+            if (!is_numeric($precio) || $precio === '' || $precio === null) {
+                $precio = 0;
+            }
+
             // PrestaShop 9+ usa currentLocale, versiones anteriores usan Tools::displayPrice
             if (method_exists($this->context, 'getCurrentLocale')) {
                 $producto['precio_formateado'] = $this->context->getCurrentLocale()->formatPrice(
-                    $precio,
+                    (float)$precio,
                     $this->context->currency->iso_code
                 );
             } else {
                 $producto['precio_formateado'] = Tools::displayPrice($precio);
             }
-            
+
             // Stock
             $producto['tiene_stock'] = $producto['quantity'] > 0;
-            
+
             // URL del producto
             $producto['product_url'] = $this->context->link->getProductLink($producto['id_product']);
-            
-            // Puede comprar
-            $producto['puede_comprar'] = $producto['tiene_stock'] && $product_obj->price > 0;
+
+            // Puede comprar (validar price también)
+            $product_price = is_numeric($product_obj->price) ? (float)$product_obj->price : 0;
+            $producto['puede_comprar'] = $producto['tiene_stock'] && $product_price > 0;
         }
 
         // Imagen del diagrama
